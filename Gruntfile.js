@@ -1,11 +1,12 @@
 module.exports = function(grunt) {
     
-    var githubDirPath = 'components/github/';
-    var htmlDirPath = 'components/html/';
-    var scgDirPath = 'components/scg/';
-    var scsDirPath = 'components/scs/';
-    var webCoreCompPath = 'client/js/'; 
-    var clientJsDirPath = 'client/static/components/js/';
+    var githubDirPath    = 'components/github/';
+    var htmlDirPath      = 'components/html/';
+    var scgDirPath       = 'components/scg/';
+    var scsDirPath       = 'components/scs/';
+    var webCoreCompPath  = 'client/js/'; 
+    var clientJsDirPath  = 'client/static/components/js/';
+    var clientCssDirPath = 'client/static/components/css/';
     
     grunt.initConfig({
         concat: {
@@ -123,7 +124,35 @@ module.exports = function(grunt) {
                 dest: clientJsDirPath + 'scs/',
                 expand: true,
                 flatten: true
-            }, 
+            },
+            githubcss: {
+                cwd: githubDirPath + 'static/components/css/',
+                src: 'github.css',
+                dest: clientCssDirPath,
+                expand: true,
+                flatten: true 
+            },
+            htmlcss: {
+                cwd: htmlDirPath + 'static/components/css/',
+                src: 'html.css',
+                dest: clientCssDirPath,
+                expand: true,
+                flatten: true 
+            },
+            scgcss: {
+                cwd: scgDirPath + 'static/components/css/',
+                src: 'scg.css',
+                dest: clientCssDirPath,
+                expand: true,
+                flatten: true 
+            },
+            scscss: {
+                cwd: scsDirPath + 'static/components/css/',
+                src: 'scs.css',
+                dest: clientCssDirPath,
+                expand: true,
+                flatten: true 
+            } 
         },
         watch: {
             js: {
