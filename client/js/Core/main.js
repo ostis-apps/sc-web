@@ -112,7 +112,11 @@ SCWeb.core.Main = {
         SCWeb.core.Arguments.clear();
         SCWeb.core.Server.doCommand(cmd_addr, cmd_args, function(result) {
             if (result.question != undefined) {
-                SCWeb.ui.WindowManager.appendHistoryItem(result.question);
+                if ($('#sameWindowCheckbox').is(':checked')) {
+                    SCWeb.ui.WindowManager.appendHistoryItem(result.question);
+                } else {
+                    SCWeb.ui.WindowManager.addAnswerToActiveWindow(result.question);
+                }
             } else if (result.command != undefined) {
                 
             } else {

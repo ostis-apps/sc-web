@@ -221,6 +221,52 @@ SCWeb.ui.WindowManager = {
     removeWindow: function(id) {
         this.window_container.find("[sc_addr='" + addr + "']").remove();
     },
+
+    addAnswerToActiveWindow: function(question_addr) {
+
+        var self = this;
+
+        var ext_lang_addr = SCWeb.core.Main.getDefaultExternalLang();
+        var fmt_addr = SCWeb.core.ComponentManager.getPrimaryFormatForExtLang(ext_lang_addr);
+
+        var windowId = $('.panel-body').attr('id');
+
+        var f = function(addr, is_struct) {
+            var id = self.hash_addr(question_addr, fmt_addr);
+
+            var sandbox = SCWeb.core.ComponentManager.createWindowSandboxByFormat({
+                format_addr: fmt_addr,
+                addr: addr,
+                is_struct: is_struct,
+                container: window_id,
+                canEdit: true    //! TODO: check user rights
+            });
+
+            if (sandbox) {
+                self.sandboxes[question_addr] = sandbox;
+                //self.setWindowActive(id);
+            } else {
+                self.showActiveWindow();
+                throw "Error while create window";
+            };
+        };
+
+        var translated = function() {
+            SCWeb.core.Server.getAnswerTranslated(question_addr, fmt_addr, function(d) {
+                f(d.link, false);
+            });
+        };
+
+        if (SCWeb.core.ComponentManager.isStructSupported(fmt_addr)) {
+            // determine answer structure
+            window.scHelper.getAnswer(question_addr).done(function (addr) {
+                f(addr, true);
+            }).fail(function(v) {
+                translated();
+            });
+        } else
+            translated();
+    },
     
     /**
      * Makes window with specified addr active
