@@ -1,12 +1,14 @@
 module.exports = function(grunt) {
     
-    var githubDirPath    = 'components/github/';
-    var htmlDirPath      = 'components/html/';
-    var scgDirPath       = 'components/scg/';
-    var scsDirPath       = 'components/scs/';
-    var webCoreCompPath  = 'client/js/'; 
-    var clientJsDirPath  = 'client/static/components/js/';
+    var githubDirPath = 'components/github/';
+    var htmlDirPath = 'components/html/';
+    var scgDirPath = 'components/scg/';
+    var scsDirPath = 'components/scs/';
+    var webCoreCompPath = 'client/js/'; 
+    var clientJsDirPath = 'client/static/components/js/';
     var clientCssDirPath = 'client/static/components/css/';
+    var clientHtmlDirPath = 'client/static/components/html/';
+    var clientImgDirPath = 'client/static/components/images/';
     
     grunt.initConfig({
         concat: {
@@ -97,71 +99,135 @@ module.exports = function(grunt) {
             },
         },
         copy: {
-            github: {
+            githubJs: {
                 cwd: githubDirPath + 'static/components/js/github/',
                 src: 'github.js',
                 dest: clientJsDirPath + 'github/',
                 expand: true,
                 flatten: true   
             },
-            html: {
+            htmlJs: {
                 cwd: htmlDirPath + 'static/components/js/html/',
                 src: 'html.js',
                 dest: clientJsDirPath + 'html/',
                 expand: true,
                 flatten: true
             },
-            scg: {
+            scgJs: {
                 cwd: scgDirPath + 'static/components/js/scg/',
                 src: 'scg.js',
                 dest: clientJsDirPath + 'scg/',
                 expand: true,
                 flatten: true
             },
-            scs: {
+            scsJs: {
                 cwd: scsDirPath + 'static/components/js/scs/',
                 src: 'scs.js',
                 dest: clientJsDirPath + 'scs/',
                 expand: true,
                 flatten: true
             },
-            githubcss: {
+            githubCss: {
                 cwd: githubDirPath + 'static/components/css/',
                 src: 'github.css',
                 dest: clientCssDirPath,
                 expand: true,
-                flatten: true 
+                flatten: true   
             },
-            htmlcss: {
+            htmlCss: {
                 cwd: htmlDirPath + 'static/components/css/',
                 src: 'html.css',
                 dest: clientCssDirPath,
                 expand: true,
-                flatten: true 
+                flatten: true
             },
-            scgcss: {
+            scgCss: {
                 cwd: scgDirPath + 'static/components/css/',
                 src: 'scg.css',
-                dest: clientCssDirPath,
+                dest: clientJsDirPath,
                 expand: true,
-                flatten: true 
+                flatten: true
             },
-            scscss: {
+            scsCss: {
                 cwd: scsDirPath + 'static/components/css/',
                 src: 'scs.css',
-                dest: clientCssDirPath,
+                dest: clientJsDirPath,
                 expand: true,
-                flatten: true 
-            } 
+                flatten: true
+            },
+            scgHtml: {
+                cwd: scgDirPath + 'static/components/scg/html/',
+                src: ['**/*.html'],
+                dest: clientHtmlDirPath,
+                expand: true,
+                flatten: true
+            },
+            htmlImg: {
+                cwd: htmlDirPath + 'static/components/images/html/',
+                src: '**/*.png',
+                dest: clientImgDirPath + 'html/',
+                expand: true,
+                flatten: true
+            },
+            scgImg: {
+                cwd: scgDirPath + 'static/components/images/scg/',
+                src: '*.png',
+                dest: clientImgDirPath + 'scg/',
+                expand: true,
+                flatten: true
+            },
+            scgImgAlphabet: {
+                cwd: scgDirPath + 'static/components/images/scg/alphabet/',
+                src: '*.png',
+                dest: clientImgDirPath + 'scg/alphabet',
+                expand: true,
+                flatten: true
+            }
         },
         watch: {
-            js: {
-                files: [githubDirPath + 'src/*.js',
-                        htmlDirPath + 'src/*.js',
-                        scgDirPath + 'src/*.js',
-                        scsDirPath + 'src/*.js',
-                        webCoreCompPath + '**/*.js'],
-                tasks: ['concat', 'copy'],
+            githubJs: {
+                files: githubDirPath + 'src/*.js',
+                tasks: ['concat:github', 'copy:githubJs'],
+            },
+            htmlJs: {
+                files: htmlDirPath + 'src/*.js',
+                tasks: ['concat:html', 'copy:htmlJs'],
+            },
+            scgJs: {
+                files: scgDirPath + 'src/*.js',
+                tasks: ['concat:scg', 'copy:scgJs'],
+            },
+            scsJs: {
+                files: scsDirPath + 'src/*.js',
+                tasks: ['concat:scs', 'copy:scsJs'],
+            },
+            githubCss: {
+                files: githubDirPath + 'static/components/css/*.css',
+                tasks: ['copy:githubCss'],
+            },
+            htmlCss: {
+                files: htmlDirPath + 'static/components/css/*.css',
+                tasks: ['copy:htmlCss'],
+            },
+            scgCss: {
+                files: scgDirPath + 'static/components/css/*.css',
+                tasks: ['copy:scgCss'],
+            },
+            scsCss: {
+                files: scsDirPath + 'static/components/css/*.css',
+                tasks: ['copy:scsCss'],
+            },
+            scgHtml: {
+                files: [scgDirPath + 'static/components/html/*.html'],
+                tasks: ['copy:scgHtml'],
+            },
+            htmlImg: {
+                files: [htmlDirPath + 'static/components/images/html/*.png',],
+                tasks: ['copy:htmlImg'],
+            },
+            scgImg: {
+                files: [scgDirPath + 'static/components/images/scg/**/*.png'],
+                tasks: ['copy:scgImg', 'copy:scgImgAlphabet'],
             },
         },
     });
