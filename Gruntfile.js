@@ -1,15 +1,15 @@
 module.exports = function(grunt) {
-    
+
     var githubDirPath = 'components/github/';
     var htmlDirPath = 'components/html/';
     var scgDirPath = 'components/scg/';
     var scsDirPath = 'components/scs/';
-    var webCoreCompPath = 'client/js/'; 
+    var webCoreCompPath = 'client/js/';
     var clientJsDirPath = 'client/static/components/js/';
     var clientCssDirPath = 'client/static/components/css/';
     var clientHtmlDirPath = 'client/static/components/html/';
     var clientImgDirPath = 'client/static/components/images/';
-    
+
     grunt.initConfig({
         concat: {
             webcore: {
@@ -42,7 +42,7 @@ module.exports = function(grunt) {
                       webCoreCompPath + 'Ui/argumentspanel.js',
                       webCoreCompPath + 'Ui/windowmanager.js',
                       webCoreCompPath + 'Ui/userpanel.js'],
-                dest: clientJsDirPath + 'sc-web-core.js',  
+                dest: clientJsDirPath + 'sc-web-core.js',
             },
             github: {
                 src: [githubDirPath + 'src/*.js'],
@@ -50,7 +50,7 @@ module.exports = function(grunt) {
             },
             html: {
                 src: [htmlDirPath + 'src/*.js'],
-                dest: htmlDirPath + 'static/components/js/html/html.js' 
+                dest: htmlDirPath + 'static/components/js/html/html.js'
             },
             scg: {
                 src: [scgDirPath + '/src/gwf-file-loader.js',
@@ -84,7 +84,7 @@ module.exports = function(grunt) {
                       scgDirPath + '/src/command/move-line-point.js',
                       scgDirPath + '/src/command/get-node-from-memory.js',
                       scgDirPath + '/src/command/wrapper-command.js'],
-                dest: scgDirPath + 'static/components/js/scg/scg.js'  
+                dest: scgDirPath + 'static/components/js/scg/scg.js'
             },
             scs: {
                 src: [scsDirPath + 'src/scs.js',
@@ -104,7 +104,7 @@ module.exports = function(grunt) {
                 src: 'github.js',
                 dest: clientJsDirPath + 'github/',
                 expand: true,
-                flatten: true   
+                flatten: true
             },
             htmlJs: {
                 cwd: htmlDirPath + 'static/components/js/html/',
@@ -132,7 +132,7 @@ module.exports = function(grunt) {
                 src: 'github.css',
                 dest: clientCssDirPath,
                 expand: true,
-                flatten: true   
+                flatten: true
             },
             htmlCss: {
                 cwd: htmlDirPath + 'static/components/css/',
@@ -144,14 +144,14 @@ module.exports = function(grunt) {
             scgCss: {
                 cwd: scgDirPath + 'static/components/css/',
                 src: 'scg.css',
-                dest: clientJsDirPath,
+                dest: clientCssDirPath,
                 expand: true,
                 flatten: true
             },
             scsCss: {
                 cwd: scsDirPath + 'static/components/css/',
                 src: 'scs.css',
-                dest: clientJsDirPath,
+                dest: clientCssDirPath,
                 expand: true,
                 flatten: true
             },
@@ -231,11 +231,11 @@ module.exports = function(grunt) {
             },
         },
     });
-  
+
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    
+
     grunt.registerTask('default', ['concat', 'copy', 'watch']);
-    
+
 };
