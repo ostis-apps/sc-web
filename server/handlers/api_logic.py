@@ -7,6 +7,7 @@ import tornado.web
 from keynodes import KeynodeSysIdentifiers, Keynodes
 from sctp.types import SctpIteratorType, ScElementType
 import decorators
+import tornado
 
 __all__ = (
     'parse_menu_command',
@@ -411,6 +412,7 @@ def get_languages_list(keynode_languages, sctp_client):
 
 
 @decorators.method_logging
+@tornado.gen.coroutine
 def do_command(sctp_client, keys, cmd_addr, arguments, handler):
     result = {}
      
@@ -457,11 +459,11 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
             arg_arc = sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm, args_addr, arg)
             append_to_system_elements(sctp_client, keynode_system_element, arg_arc)
             if arg_arc is None:
-                return serialize_error(handler, 404, 'Error while create "create_instance" command')
+                raise tornado.gen.Return(serialize_error(handler, 404, 'Error while create "create_instance" command'))
 
             idx_addr = sctp_client.find_element_by_system_identifier(str(u'rrel_%d' % idx))
             if idx_addr is None:
-                return serialize_error(handler, 404, 'Error while create "create_instance" command')
+                raise tornado.gen.Return(serialize_error(handler, 404, 'Error while create "create_instance" command'))
             idx += 1
             arc = sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm, idx_addr, arg_arc)
             append_to_system_elements(sctp_client, keynode_system_element, arc)
@@ -475,10 +477,10 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
         cmd_finished = False
         cmd_failed = False
         while True:
-            time.sleep(wait_dt)
+            yield tornado.gen.sleep(wait_dt)
             wait_time += wait_dt
             if wait_time > tornado.options.options.event_wait_timeout:
-                return serialize_error(handler, 404, 'Timeout waiting for "create_instance" command finished')
+               raise tornado.gen.Return(serialize_error(handler, 404, 'Timeout waiting for "create_instance" command finished'))
             cmd_finished = check_command_finished(inst_cmd_addr, keynode_ui_command_finished, sctp_client)
             #cmd_failed = check_command_failed(inst_cmd_addr, keynode_ui_command_failed, sctp_client)            
             
@@ -486,7 +488,7 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
                 break;
             
         if cmd_failed:
-            return { }
+            raise tornado.gen.Return({})
 
         # get command result
         cmd_result = sctp_client.iterate_elements(
@@ -498,7 +500,7 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
             keynode_ui_nrel_command_result
         )
         if cmd_result is None:
-            return serialize_error(handler, 404, 'Can\'t find "create_instance" command result')
+            raise tornado.gen.Return(serialize_error(handler, 404, 'Can\'t find "create_instance" command result'))
 
         cmd_result = cmd_result[0][2]
 
@@ -507,7 +509,7 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
         sc_session = ScSession(handler, sctp_client, keys)
         user_node = sc_session.get_sc_addr()
         if not user_node:
-            return serialize_error(handler, 404, "Can't resolve user node")
+            raise tornado.gen.Return(serialize_error(handler, 404, "Can't resolve user node"))
         
         keynode_init_set = None
         keynode_question = keys[KeynodeSysIdentifiers.question]
@@ -621,7 +623,7 @@ def do_command(sctp_client, keys, cmd_addr, arguments, handler):
 
         result = { result_key: instance_node.to_id() }
             
-    return result
+    raise tornado.gen.Return(result)
 
 # -------------- work with session -------------------------
 @decorators.class_logging
@@ -662,6 +664,7 @@ class ScSession:
             
         # todo check user addr
         return self.sc_addr
+
     
     def get_used_language(self):
         """Returns sc-addr of currently used natural language

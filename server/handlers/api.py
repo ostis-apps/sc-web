@@ -93,6 +93,7 @@ class ContextMenu(base.BaseHandler):
 class CmdDo(base.BaseHandler):
     
     #@tornado.web.asynchronous
+    @tornado.gen.coroutine
     def post(self):
         result = '[]'
         
@@ -110,13 +111,13 @@ class CmdDo(base.BaseHandler):
                     if sctp_client.check_element(arg):
                         arguments.append(arg)
                     else:
-                        return logic.serialize_error(404, "Invalid argument: %s" % arg)
+                        raise gen.Return(logic.serialize_error(404, "Invalid argument: %s" % arg))
     
                 first = False
                 idx += 1
 
             keys = Keynodes(sctp_client)
-            result = logic.do_command(sctp_client, keys, cmd_addr, arguments, self)
+            result = yield logic.do_command(sctp_client, keys, cmd_addr, arguments, self)
                  
             self.set_header("Content-Type", "application/json")
             self.finish(json.dumps(result))
