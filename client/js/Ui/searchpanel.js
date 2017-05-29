@@ -1,5 +1,5 @@
 SCWeb.ui.SearchPanel = {
-    
+
     init: function() {
         var dfd = new jQuery.Deferred();
         var self = this;
@@ -18,21 +18,23 @@ SCWeb.ui.SearchPanel = {
                     $('#search-input').addClass('search-processing');
                     SCWeb.core.Server.findIdentifiersSubStr(query, function(data) {
                         keys = [];
-                        
+
                         var addValues = function(key) {
                             var list = data[key];
+
                             if (list) {
                                 for (idx in list) {
                                     var value = list[idx]
+
                                     keys.push({name: value[1], addr: value[0], group: key});
                                 }
                             }
                         }
-                        
+
                         addValues('sys');
                         addValues('main');
                         addValues('common');
-                        
+
                         cb(keys);
                         $('#search-input').removeClass('search-processing');
                     });
@@ -59,16 +61,18 @@ SCWeb.ui.SearchPanel = {
         ).bind('typeahead:selected', function(evt, item, dataset) {
             if (item && item.addr) {
                 SCWeb.core.Main.doDefaultCommand([item.addr]);
+                console.log(item);
             }
             evt.stopPropagation();
             $('.typeahead').val('');
         }).keypress(function(event) {
             if (event.which == 13) {
-                SCWeb.core.Main.doTextCommand($(this).val());
-                $('#search-input').val('');
+                SCWeb.core.Main.doDefaultCommand([keys[0].addr]);
+                $('#search-input').context.activeElement.value = keys[0].name;
+                $('#search-input').placeholder = "Поиск...";
             }
         });
-        
+
         SCWeb.core.Server.resolveScAddr(['nrel_main_idtf', 'nrel_idtf', 'nrel_system_identifier'], function(addrs) {
             keynode_nrel_main_idtf = addrs['nrel_main_idtf'];
             keynode_nrel_idtf = addrs['nrel_idtf'];
@@ -79,5 +83,5 @@ SCWeb.ui.SearchPanel = {
 
         return dfd.promise();
     },
-    
+
 };
