@@ -93,6 +93,7 @@ class ContextMenu(base.BaseHandler):
 class CmdDo(base.BaseHandler):
     
     #@tornado.web.asynchronous
+    @tornado.gen.coroutine
     def post(self):
         result = '[]'
         
@@ -110,13 +111,13 @@ class CmdDo(base.BaseHandler):
                     if sctp_client.check_element(arg):
                         arguments.append(arg)
                     else:
-                        return logic.serialize_error(404, "Invalid argument: %s" % arg)
+                        raise gen.Return(logic.serialize_error(404, "Invalid argument: %s" % arg))
     
                 first = False
                 idx += 1
 
             keys = Keynodes(sctp_client)
-            result = logic.do_command(sctp_client, keys, cmd_addr, arguments, self)
+            result = yield logic.do_command(sctp_client, keys, cmd_addr, arguments, self)
                  
             self.set_header("Content-Type", "application/json")
             self.finish(json.dumps(result))
@@ -125,6 +126,7 @@ class CmdDo(base.BaseHandler):
 class QuestionAnswerTranslate(base.BaseHandler):
     
     #@tornado.web.asynchronous
+    @tornado.gen.coroutine
     def post(self):
         with SctpClientInstance() as sctp_client:
 
@@ -143,15 +145,15 @@ class QuestionAnswerTranslate(base.BaseHandler):
             
             answer = logic.find_answer(question_addr, keynode_nrel_answer, sctp_client)
             while answer is None:
-                time.sleep(wait_dt)
+                yield tornado.gen.sleep(wait_dt)
                 wait_time += wait_dt
                 if wait_time > tornado.options.options.event_wait_timeout:
-                    return logic.serialize_error(self, 404, 'Timeout waiting for answer')
+                    raise tornado.gen.Return(logic.serialize_error(self, 404, 'Timeout waiting for answer'))
                 
                 answer = logic.find_answer(question_addr, keynode_nrel_answer, sctp_client)
             
             if answer is None:
-                return logic.serialize_error(self, 404, 'Answer not found')
+                raise tornado.gen.Return(logic.serialize_error(self, 404, 'Answer not found'))
             
             answer_addr = answer[0][2]
             
@@ -187,10 +189,10 @@ class QuestionAnswerTranslate(base.BaseHandler):
                 wait_time = 0
                 translation = logic.find_translation_with_format(answer_addr, format_addr, keynode_nrel_format, keynode_nrel_translation, sctp_client)
                 while translation is None:
-                    time.sleep(wait_dt)
+                    yield tornado.gen.sleep(wait_dt)
                     wait_time += wait_dt
                     if wait_time > tornado.options.options.event_wait_timeout:
-                        return logic.serialize_error(self, 404, 'Timeout waiting for answer translation')
+                        raise tornado.gen.Return(logic.serialize_error(self, 404, 'Timeout waiting for answer translation'))
      
                     translation = logic.find_translation_with_format(answer_addr, format_addr, keynode_nrel_format, keynode_nrel_translation, sctp_client)
                     
