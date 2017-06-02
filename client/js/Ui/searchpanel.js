@@ -69,7 +69,6 @@ SCWeb.ui.SearchPanel = {
             if (event.which == 13) {
                 SCWeb.core.Main.doDefaultCommand([keys[0].addr]);
                 $('#search-input').context.activeElement.value = keys[0].name;
-                $('#search-input').placeholder = "Поиск...";
             }
         });
 
