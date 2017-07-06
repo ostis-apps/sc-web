@@ -143,26 +143,26 @@ SCWeb.core.Server = {
      */
     init: function (callback) {
         $.ajax({
-            url: '/api/user/',
-            data: null,
-            type: 'GET',
-            success: function (user) {
-                window.scHelper.getMainMenuCommands(window.scKeynodes.ui_main_menu).done(function (menu_commands) {
-                    var data = {};
-                    data['menu_commands'] = menu_commands;
-                    data['user'] = user;
-
-                    window.scHelper.getLanguages().done(function (langs) {
-                        data['languages'] = langs;
-
-                        window.scHelper.getOutputLanguages().done(function (out_langs) {
-                            data['external_languages'] = out_langs;
-                            callback(data);
+                url: '/api/user/',
+                data: null,
+                type: 'GET',
+                success: function(user) {
+                    window.scHelper.getMenuCommands(window.scKeynodes.ui_main_menu).done(function(menu_commands) {
+                        var data = {};
+                        data['menu_commands'] = menu_commands;
+                        data['user'] = user;
+                        
+                        window.scHelper.getLanguages().done(function(langs) {
+                            data['languages'] = langs;
+                            
+                            window.scHelper.getOutputLanguages().done(function(out_langs) {
+                                data['external_languages'] = out_langs;
+                                callback(data);
+                            });
                         });
                     });
-                });
-            }
-        });
+                }
+        });        
     },
 
     /*!

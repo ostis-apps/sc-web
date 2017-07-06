@@ -59,8 +59,8 @@ ScHelper.prototype.getSetElements = function (addr) {
 /*! Function resolve commands hierarchy for main menu.
  * It returns main menu command object, that contains whole hierarchy as a child objects
  */
-ScHelper.prototype.getMainMenuCommands = function () {
-
+ScHelper.prototype.getMenuCommands = function(menuAddr) {
+    
     var self = this;
 
     function determineType(cmd_addr) {
@@ -145,9 +145,9 @@ ScHelper.prototype.getMainMenuCommands = function () {
 
         return dfd.promise();
     }
-
-
-    return parseCommand(window.scKeynodes.ui_main_menu, null);
+    
+    
+    return parseCommand(menuAddr, null);
 };
 
 /*! Function to get available native user languages
