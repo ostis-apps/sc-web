@@ -157,7 +157,12 @@ SCWeb.core.Server = {
                             
                             window.scHelper.getOutputLanguages().done(function(out_langs) {
                                 data['external_languages'] = out_langs;
-                                callback(data);
+
+                                window.scHelper.getMenuCommands(window.scKeynodes.menu_eekb).done(function(menu_eekb) {
+                                    data['menu_eekb'] = menu_eekb;
+
+                                    callback(data);
+                                });
                             });
                         });
                     });

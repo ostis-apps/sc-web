@@ -33,6 +33,7 @@ module.exports = function(grunt) {
                       webCoreCompPath + 'Core/eventmanager.js',
                       webCoreCompPath + 'Ui/namespace.js',
                       webCoreCompPath + 'Ui/menu.js',
+                      webCoreCompPath + 'Ui/eekbPanel.js',
                       webCoreCompPath + 'Ui/langpanel.js',
                       webCoreCompPath + 'Ui/locker.js',
                       webCoreCompPath + 'Ui/core.js',

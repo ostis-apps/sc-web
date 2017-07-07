@@ -40,6 +40,7 @@ SCWeb.core.Main = {
                             self.user = data.user;
 
                             data.menu_container_id = params.menu_container_id;
+                            data.menu_container_eekb_id = params.menu_container_eekb_id;
 
                             SCWeb.core.Translation.fireLanguageChanged(self.user.current_lang);
 

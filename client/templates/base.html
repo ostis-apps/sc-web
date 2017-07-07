@@ -101,58 +101,57 @@
     </div><!-- /.container-fluid -->
 </nav>
 
-<!-- header -->
-<!--<div class="page-header">
-    <h1>IMS<small>OSTIS</small></h1>
-</div>-->
-<!-- main content -->
-<div id="main-container" class="main-container">
-    <div id="static-window-container" class="col-xs-2 col-sm-2 col-md-2">
-        <div id="history-container" class="panel panel-default">
-            <div>
-                <ul id="history-items" class="list-group">{# Tabs will be added later #}</ul>
+    <!-- header -->
+    <!--<div class="page-header">
+        <h1>IMS<small>OSTIS</small></h1>
+    </div>-->
+    <!-- main content -->
+    <div id="main-container" class="main-container">
+        <div id="static-window-container" class="col-xs-2 col-sm-2 col-md-2">
+            <div id="history-container" class="panel panel-default">
+                <div>
+                    <ul id="history-items" class="list-group">{# Tabs will be added later #}</ul>
+                </div>
+            </div>
+
+            <!-- TODO -->
+            <div id="menu_container_eekb">
+                <!-- there will be placed menu items -->
+            </div>
+
+        </div>
+        <div id="window-header-tools" class="pull-right">
+            <div class="btn-group">
+                <button type="button" class="btn btn-success ">
+                    <span class="glyphicon glyphicon-font"></span>
+                </button>
+                <button type="button" class="histoy-item-btn btn btn-success" data-toggle="dropdown" sc_control_sys_idtf="ui_control_select_window_type">
+                    <span class="glyphicon glyphicon-list-alt"></span>
+                </button>
+                <ul id="history-item-langs" class="dropdown-menu" role="menu">{# languages will be added #}</ul>
+                
+                <button type="button" class="btn btn-primary" id="windows-list">
+                    <span class="glyphicon glyphicon-th-large"></span>
+                </button>
+                <button type="button" class="btn btn-default" id="history-item-print" sc_control_sys_idtf="ui_control_print_window_content">
+                    <span class="glyphicon glyphicon-print"></span>
+                </button>
+                <button type="button" class="btn btn-default" id="history-item-link" data-container="body" data-toggle="popover" data-placement="bottom">
+                    <span class="glyphicon glyphicon-link"></span>
+                </button>
+            </div>
+            
+            <div id="search-panel">
+                <form role="search">
+                    <div class="form-group">
+                        <input id="search-input" type="text" class="typeahead form-control" x-webkit-speech sc_control_sys_idtf="ui_control_search_idtf_edit" style="width: 250px;" data-provide="typeahead" autocomplete="off">
+                    </div>
+                  {# <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button> #}
+                </form>
             </div>
         </div>
+        <div id="window-container" class="col-xs-10 col-sm-10 col-md-10">{# Windows will be added later #}</div>
     </div>
-    <div id="window-header-tools" class="pull-right">
-        <div class="btn-group">
-            <button type="button" class="btn btn-success ">
-                <span class="glyphicon glyphicon-font"></span>
-            </button>
-            <button type="button" class="histoy-item-btn btn btn-success" data-toggle="dropdown"
-                    sc_control_sys_idtf="ui_control_select_window_type">
-                <span class="glyphicon glyphicon-list-alt"></span>
-            </button>
-            <ul id="history-item-langs" class="dropdown-menu" role="menu">{# languages will be added #}</ul>
-
-            <button type="button" class="btn btn-primary" id="windows-list">
-                <span class="glyphicon glyphicon-th-large"></span>
-            </button>
-            <button type="button" class="btn btn-default" id="history-item-print"
-                    sc_control_sys_idtf="ui_control_print_window_content">
-                <span class="glyphicon glyphicon-print"></span>
-            </button>
-            <button type="button" class="btn btn-default" id="history-item-link" data-container="body"
-                    data-toggle="popover" data-placement="bottom">
-                <span class="glyphicon glyphicon-link"></span>
-            </button>
-        </div>
-
-        <div id="search-panel">
-            <form role="search">
-                <div class="form-group">
-                    <input id="search-input" type="text" class="typeahead form-control" x-webkit-speech
-                           sc_control_sys_idtf="ui_control_search_idtf_edit" style="width: 250px;"
-                           data-provide="typeahead" autocomplete="off">
-                </div>
-                {#
-                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
-                #}
-            </form>
-        </div>
-    </div>
-    <div id="window-container" class="col-xs-10 col-sm-10 col-md-10">{# Windows will be added later #}</div>
-</div>
 
 <div id="footer" class="navbar navbar-default navbar-fixed-bottom">
     <div class="navbar-inner">
@@ -185,20 +184,17 @@
 
 <script type="text/javascript">
 
-    $(document).ready(function () {
-        SCWeb.ui.Locker.show();
-        var params = {
-            menu_container_id: 'menu_container',
-        {%
-            if first_time == "1" %}
-        first_time: true, { % end %
-    }
-    }
-        ;
-        $.when(SCWeb.core.Main.init(params)).done(function () {
-            SCWeb.ui.Locker.hide();
+        $(document).ready(function() {
+            SCWeb.ui.Locker.show();
+            var params = {
+                        menu_container_id: 'menu_container',
+                        menu_container_eekb_id: 'menu_container_eekb',
+                        {% if first_time == "1" %}first_time: true,{% end %}
+                    };
+            $.when(SCWeb.core.Main.init(params)).done(function() {
+                SCWeb.ui.Locker.hide();
+            });
         });
-    });
 
 
 </script>

@@ -22,14 +22,15 @@ SCWeb.ui.Core = {
         }
 
         $.when(SCWeb.ui.Menu.init(data),
-            SCWeb.ui.ArgumentsPanel.init(),
-            SCWeb.ui.UserPanel.init(data),
-            SCWeb.ui.LanguagePanel.init(data),
-            SCWeb.ui.WindowManager.init(data),
-            SCWeb.ui.SearchPanel.init(),
-            SCWeb.ui.KeyboardHandler.init(SCWeb.ui.WindowManager),
-            self.resolveElementsAddr('body')
-        ).done(function () {
+               SCWeb.ui.ArgumentsPanel.init(),
+               SCWeb.ui.UserPanel.init(data),
+               SCWeb.ui.LanguagePanel.init(data),
+               SCWeb.ui.WindowManager.init(data),
+               SCWeb.ui.SearchPanel.init(),
+               SCWeb.ui.EekbPanel.init(data),
+               SCWeb.ui.KeyboardHandler.init(SCWeb.ui.WindowManager),
+               self.resolveElementsAddr('body')
+            ).done(function() {
 
             // listen clicks on sc-elements
             var sc_elements_cmd_selector = '[sc_addr]:not(.sc-window, .sc-no-default-cmd)';

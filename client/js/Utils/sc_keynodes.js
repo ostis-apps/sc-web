@@ -8,6 +8,8 @@ ScKeynodes.prototype.init = function () {
     var self = this;
 
     $.when(
+        this.resolveKeynode('ui_menu_na_view_kb_extended', 'menu_eekb'),
+
         this.resolveKeynode('nrel_system_identifier'),
         this.resolveKeynode('nrel_main_idtf'),
         this.resolveKeynode('nrel_idtf'),
