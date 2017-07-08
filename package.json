@@ -2,11 +2,23 @@
   "name": "sc-web",
   "version": "1.0.0",
   "dependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
     "grunt": "^1.0.1"
   },
   "devDependencies": {
+    "fs": "0.0.1-security",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-watch": "^1.0.0"
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exec": "^2.0.0",
+    "jasmine": "^2.6.0",
+    "jasmine-core": "^2.6.4",
+    "jasmine-diff": "^0.1.2",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-webpack": "^2.0.4"
   }
 }

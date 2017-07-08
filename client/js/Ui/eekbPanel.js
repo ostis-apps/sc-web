@@ -1,122 +1,85 @@
-SCWeb.ui.EekbPanel = {
-    _items: null,
+import {Arguments, EventManager, Main, Server} from "./index.js";
 
-    init: function(params) {
-        var dfd = new jQuery.Deferred();
-        var self = this;
-        this.menu_container_eekb_id = '#' + params.menu_container_eekb_id;
+export function EekbPanel() {
+    let state = {};
+    let _items = [];
+    let menu_container_eekb_id;
 
-        // register for translation updates
-        SCWeb.core.EventManager.subscribe("translation/get", this, function(objects) {
-            var items = self.getObjectsToTranslate();
-            for (var i in items) {
-                objects.push(items[i]);
-            }
-        });
-        SCWeb.core.EventManager.subscribe("translation/update", this, function(names) {
-            self.updateTranslation(names);
-        });
+    function _render() {
+        _items = [];
+        let childs = state.menuData.childs.map(_parseMenuItem).join('');
+        return `<ul class="nav navbar-nav">${childs}</ul>`;
+    }
 
-        context.init({
-            //fadeSpeed: 100,
-            //filter: null,
-            //above: 'auto',
-            preventDoubleContext: true,
-            //compress: false,
-            container: '#main-container'
-        });
-        context.attach('[sc_addr]', this._contextMenu);
+    function _parseMenuItem(item) {
+        //every time element builds, new array of commands ids collects
+        _items.push(item.id);
 
-        this._build(params.menu_eekb);
-        dfd.resolve();
-        return dfd.promise();
-    },
+        let childs = item.childs ? item.childs.map(item => [item, state.namesMap[item.id] || item.id])
+            .map(item => {
+                //primitive to String
+                item[1] = '' + item[1];
+                return item;
+            })
+            .sort((item1, item2) => item1[1].localeCompare(item2[1]))
+            .map(item => item[0])
+            .map(_parseMenuItem)
+            .join('') : '';
 
-    _build: function(menuData) {
-
-        this._items = [];
-
-        var menuHtml = '<ul class="nav navbar-nav">';
-
-        //TODO: change to children, remove intermediate 'childs'
-        if(menuData.hasOwnProperty('childs')) {
-            for(i in menuData.childs) {
-                var subMenu = menuData.childs[i];
-                menuHtml += this._parseMenuItem(subMenu);
-            }
-        }
-
-        menuHtml += '</ul>';
-
-        $(this.menu_container_eekb_id).append(menuHtml);
-
-        this._registerMenuHandler();
-    },
-
-    _parseMenuItem: function(item) {
-
-        this._items.push(item.id);
-
-        var itemHtml = '';
-        if (item.cmd_type == 'cmd_noatom') {
-            itemHtml = '<li class="dropdown"><a sc_addr="' + item.id + '" id="' + item.id + '" class="menu-item menu-cmd-noatom dropdown-toggle" data-toggle="dropdown" href="#" ><span clas="text">' + item.id + '</span><b class="caret"></b></a>';
-        } else if (item.cmd_type == 'cmd_atom') {
-            itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="menu-item menu-cmd-atom" >' + item.id + '</a>';
+        if (item.cmd_type === 'cmd_noatom') {
+            return `
+<li class="dropdown">
+    <a sc_addr="${item.id}" id="${item.id}" class="menu-item menu-cmd-noatom dropdown-toggle" data-toggle="dropdown" href="#" >
+        <span class="text">${state.namesMap[item.id] || item.id}</span>
+        <b class="caret"></b>
+    </a>
+<ul class="dropdown-menu">${childs}</ul></li>`;
+        } else if (item.cmd_type === 'cmd_atom') {
+            return `
+<li>
+    <a id="${item.id}" sc_addr="${item.id}" class="menu-item menu-cmd-atom" >${state.namesMap[item.id] || item.id}</a>
+</li>`;
         } else {
-            itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="menu-item menu-cmd-keynode" >' + item.id + '</a>';
+            throw new Error('illegal command type')
+            // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="menu-item menu-cmd-keynode" >' + item.id + '</a>';
         }
 
-        if (item.hasOwnProperty('childs')) {
-            itemHtml += '<ul class="dropdown-menu">';
-            for(i in item.childs) {
-                var subMenu = item.childs[i];
-                itemHtml += this._parseMenuItem(subMenu);
-            }
-            itemHtml += '</ul>';
-        }
-        return itemHtml + '</li>';
-    },
+    }
 
-    _registerMenuHandler: function() {
+    function _registerMenuHandler() {
 
-        $('.menu-item').click(function() {
+        $('.menu-item').click(function () {
             var sc_addr = $(this).attr('sc_addr');
             if ($(this).hasClass('menu-cmd-atom')) {
-                SCWeb.core.Main.doCommand(sc_addr, SCWeb.core.Arguments._arguments);
+                Main.doCommand(sc_addr, Arguments._arguments);
             } else if ($(this).hasClass('menu-cmd-keynode')) {
-                SCWeb.core.Main.doDefaultCommand([sc_addr]);
+                Main.doDefaultCommand([sc_addr]);
             }
         });
-    },
+    }
 
-    _sort: function() {
-
-        // TODO sort html
-
-    },
-
-    _contextMenu: function(target) {
+    function _contextMenu(target) {
         var dfd = new jQuery.Deferred();
-        var args = SCWeb.core.Arguments._arguments.slice();
+        var args = Arguments._arguments.slice();
         args.push(target.attr('sc_addr'));
-        SCWeb.core.Server.contextMenu(args, function(data) {
+        Server.contextMenu(args, function (data) {
 
-            var parseMenuItem = function(item, parentSubmenu) {
+
+            var parseMenuItem = function (item) {
                 var menu_item = {};
-                menu_item.action = function(e) {
-                    SCWeb.core.Main.doCommand(item, args);
+                menu_item.action = function (e) {
+                    Main.doCommand(item, args);
                 }
 
-                menu_item.text = item;
-                parentSubmenu.push(menu_item);
+                return item;
             }
 
             var menu = [];
-            for(i in data) {
-                parseMenuItem(data[i], menu);
+            for (i in data) {
+               menu.push(parseMenuItem(data[i]))
             }
 
-            var applyTranslation = function(item, id, text) {
+            var applyTranslation = function (item, id, text) {
                 if (item.text == id) {
                     item.text = text;
                 }
@@ -127,7 +90,7 @@ SCWeb.ui.EekbPanel = {
                 }
             }
 
-            SCWeb.core.Server.resolveIdentifiers(data, function(namesMap) {
+            Server.resolveIdentifiers(data, function (namesMap) {
 
                 for (var itemId in namesMap) {
                     if (namesMap.hasOwnProperty(itemId)) {
@@ -138,7 +101,7 @@ SCWeb.ui.EekbPanel = {
                 }
 
                 // sort menu
-                menu.sort(function(a, b) {
+                menu.sort(function (a, b) {
                     if (a.text > b.text)
                         return 1;
                     if (a.text < b.text)
@@ -148,8 +111,8 @@ SCWeb.ui.EekbPanel = {
 
                 menu.unshift({
                     text: '<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>',
-                    action: function(e) {
-                        SCWeb.core.Arguments.appendArgument(target.attr('sc_addr'));
+                    action: function (e) {
+                        Arguments.appendArgument(target.attr('sc_addr'));
                     }
                 });
 
@@ -158,23 +121,84 @@ SCWeb.ui.EekbPanel = {
         });
 
         return dfd.promise();
-    },
+    }
 
-    // ---------- Translation listener interface ------------
-    updateTranslation: function(namesMap) {
-        $(this.menu_container_eekb_id + ' [sc_addr]').each(function(index, element) {
-            var addr = $(element).attr('sc_addr');
-            if(namesMap[addr]) {
-                $(element).text(namesMap[addr]);
+    function getObjectsToTranslate() {
+        return _items;
+    }
+
+    function updateTranslation(namesMap) {
+        setState({
+            menuData: state.menuData,
+            namesMap: namesMap
+        })
+    }
+
+    function setState(newState) {
+        state = newState;
+
+        $(menu_container_eekb_id).html(_render());
+    }
+
+    let init = function init(params) {
+        menu_container_eekb_id = '#' + params.menu_container_eekb_id;
+
+        // register for translation updates
+        EventManager.subscribe("translation/get", this, function (objects) {
+            var items = getObjectsToTranslate();
+            for (var i in items) {
+                objects.push(items[i]);
             }
         });
-        this._sort();
-    },
 
-    /**
-     * @return Returns list obj sc-elements that need to be translated
-     */
-    getObjectsToTranslate: function() {
-        return this._items;
-    }
-};
+        EventManager.subscribe("translation/update", this, function (names) {
+            updateTranslation(names);
+        });
+
+        context.init({
+            //fadeSpeed: 100,
+            //filter: null,
+            //above: 'auto',
+            preventDoubleContext: true,
+            //compress: false,
+            container: '#main-container'
+        });
+
+        context.attach('[sc_addr]', _contextMenu);
+
+        setState({
+            menuData: params.menu_eekb,
+            namesMap: {}
+        });
+
+        _registerMenuHandler();
+        return jQuery.when();
+    }.bind(this);
+
+
+    return {
+        init: init,
+
+        _render: _render,
+
+        _parseMenuItem: _parseMenuItem,
+
+        _registerMenuHandler: _registerMenuHandler,
+
+        _contextMenu: _contextMenu,
+
+        /**
+         * Change state of panel (menu items object and names amp)
+         * also replace html core in panel's HTML element
+         */
+        setState: setState,
+
+        // ---------- Translation listener interface ------------
+        updateTranslation: updateTranslation,
+
+        /**
+         * @return Returns list obj sc-elements that need to be translated
+         */
+        getObjectsToTranslate: getObjectsToTranslate,
+    };
+}
