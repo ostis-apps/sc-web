@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="keywords" content=""/>
+    <meta name="description" content=""/>
     {% block extrameta %}{% end %}
     <title>{% block title %}OSTIS{% end %}</title>
 
-    
-    <link rel="stylesheet" type="text/css" href="/static/common/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="/static/common/bootstrap/css/bootstrap-multilevel.css" />
-    <link rel="stylesheet" type="text/css" href="/static/components/css/common.css" />
+
+    <link rel="stylesheet" type="text/css" href="/static/common/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/common/bootstrap/css/bootstrap-multilevel.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/components/css/common.css"/>
     {% block extrastyles %}{% end %}
 
     {% include 'common.html' %}
@@ -27,7 +27,6 @@
 <body id="body">
 
 
-
 <nav class="navbar navbar-default" style="
     position: fixed;
     z-index: 1000;
@@ -35,160 +34,179 @@
     right: 0;
     top: 0;
 ">
-  <div class="container-fluid" style="
+    <div class="container-fluid" style="
     padding-left: 0px;
 ">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
             {#<a class="navbar-brand" href="#">OSTIS</a>#}
             <!-- Help button -->
             <div id="help_button" class="help-button" style="
     padding-right: 20px;
     padding-left: 20px;
 ">
-                <a data-toggle="modal" data-target="#help-modal"><img src="/static/components/images/help-red.png" class="help-button"/></a>
+                <a data-toggle="modal" data-target="#help-modal"><img src="/static/components/images/help-red.png"
+                                                                      class="help-button"/></a>
             </div>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <div id="menu_container">
-            <!-- there will be placed menu items -->
         </div>
 
-        <div id="auth-user-panel" class="pull-right">
-            {% if user %}
-            <div id="auth-user-registered">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <div class="auth-user-image pull-left" ><img src="{{ user.avatar }}" alt="{{ escape(user.name) }}"></img></div>
-                            <div class="pull-left"><span id="auth-user-name" >{{ escape(user.name) }}</span></div>
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            {# <li class="divider"></li> #}
-                            <li><a href="/auth/logout">Logout</a></li>
-                        </ul>
-                    </li>
-                </ul>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div id="menu_container">
+                <!-- there will be placed menu items -->
             </div>
-            {% else %}
-            <a href="/auth/google">
-                <div class="gplus-login-button"></div>
-            </a>
-            {% end %}
-        </div>
-        
-        <div id="language-panel">
-            <form class="navbar-form navbar-right" sc_control_sys_idtf="ui_control_select_idtf_mode">
-                <select id="language-select" class="form-control" style="width: 150px;">
-                </select>
-            </form>
 
-        </div>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+            <div id="auth-user-panel" class="pull-right">
+                {% if user %}
+                <div id="auth-user-registered">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <div class="auth-user-image pull-left"><img src="{{ user.avatar }}"
+                                                                            alt="{{ escape(user.name) }}"></img></div>
+                                <div class="pull-left"><span id="auth-user-name">{{ escape(user.name) }}</span></div>
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {#
+                                <li class="divider"></li>
+                                #}
+                                <li><a href="/auth/logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="/auth/google">
+                    <div class="gplus-login-button"></div>
+                </a>
+                {% end %}
+            </div>
+
+            <div id="language-panel">
+                <form class="navbar-form navbar-right" sc_control_sys_idtf="ui_control_select_idtf_mode">
+                    <select id="language-select" class="form-control" style="width: 150px;">
+                    </select>
+                </form>
+
+            </div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
 </nav>
 
-    <!-- header -->
-    <!--<div class="page-header">
-        <h1>IMS<small>OSTIS</small></h1>
-    </div>-->
-    <!-- main content -->
-    <div id="main-container" class="main-container">
-        <div id="static-window-container" class="col-xs-2 col-sm-2 col-md-2">
-            <div id="history-container" class="panel panel-default">
-                <div>
-                    <ul id="history-items" class="list-group">{# Tabs will be added later #}</ul>
-                </div>
+<!-- header -->
+<!--<div class="page-header">
+    <h1>IMS<small>OSTIS</small></h1>
+</div>-->
+<!-- main content -->
+<div id="main-container" class="main-container">
+    <div id="static-window-container" class="col-xs-2 col-sm-2 col-md-2">
+        <div id="history-container" class="panel panel-default">
+            <div>
+                <ul id="history-items" class="list-group">{# Tabs will be added later #}</ul>
             </div>
         </div>
-        <div id="window-header-tools" class="pull-right">
+    </div>
+    <div id="window-header-tools" class="pull-right">
+        <div class="btn-group">
+            <button type="button" class="btn btn-success ">
+                <span class="glyphicon glyphicon-font"></span>
+            </button>
+            <button type="button" class="histoy-item-btn btn btn-success" data-toggle="dropdown"
+                    sc_control_sys_idtf="ui_control_select_window_type">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            <ul id="history-item-langs" class="dropdown-menu" role="menu">{# languages will be added #}</ul>
+
+            <button type="button" class="btn btn-primary" id="windows-list">
+                <span class="glyphicon glyphicon-th-large"></span>
+            </button>
+            <button type="button" class="btn btn-default" id="history-item-print"
+                    sc_control_sys_idtf="ui_control_print_window_content">
+                <span class="glyphicon glyphicon-print"></span>
+            </button>
+            <button type="button" class="btn btn-default" id="history-item-link" data-container="body"
+                    data-toggle="popover" data-placement="bottom">
+                <span class="glyphicon glyphicon-link"></span>
+            </button>
+        </div>
+
+        <div id="search-panel">
+            <form role="search">
+                <div class="form-group">
+                    <input id="search-input" type="text" class="typeahead form-control" x-webkit-speech
+                           sc_control_sys_idtf="ui_control_search_idtf_edit" style="width: 250px;"
+                           data-provide="typeahead" autocomplete="off">
+                </div>
+                {#
+                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
+                #}
+            </form>
+        </div>
+    </div>
+    <div id="window-container" class="col-xs-10 col-sm-10 col-md-10">{# Windows will be added later #}</div>
+</div>
+
+<div id="footer" class="navbar navbar-default navbar-fixed-bottom">
+    <div class="navbar-inner">
+        <div id="arguments_container" class="argument-container">
             <div class="btn-group">
-                <button type="button" class="btn btn-success ">
-                    <span class="glyphicon glyphicon-font"></span>
-                </button>
-                <button type="button" class="histoy-item-btn btn btn-success" data-toggle="dropdown" sc_control_sys_idtf="ui_control_select_window_type">
-                    <span class="glyphicon glyphicon-list-alt"></span>
-                </button>
-                <ul id="history-item-langs" class="dropdown-menu" role="menu">{# languages will be added #}</ul>
-                
-                <button type="button" class="btn btn-primary" id="windows-list">
-                    <span class="glyphicon glyphicon-th-large"></span>
-                </button>
-                <button type="button" class="btn btn-default" id="history-item-print" sc_control_sys_idtf="ui_control_print_window_content">
-                    <span class="glyphicon glyphicon-print"></span>
-                </button>
-                <button type="button" class="btn btn-default" id="history-item-link" data-container="body" data-toggle="popover" data-placement="bottom">
-                    <span class="glyphicon glyphicon-link"></span>
-                </button>
+                <button id="arguments_clear_button" class="btn btn-danger"
+                        sc_control_sys_idtf="ui_control_argument_button_clear"><span
+                        class="glyphicon glyphicon-remove-sign"></span></button>
+                <!--<button id="arguments_add_button" class="btn btn-success" {#sc_control_sys_idtf="ui_control_argument_button_add"#}><span class="glyphicon glyphicon-plus-sign"></span></button>-->
             </div>
-            
-            <div id="search-panel">
-                <form role="search">
-                    <div class="form-group">
-                        <input id="search-input" type="text" class="typeahead form-control" x-webkit-speech sc_control_sys_idtf="ui_control_search_idtf_edit" style="width: 250px;" data-provide="typeahead" autocomplete="off">
-                    </div>
-                  {# <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button> #}
-                </form>
+
+            <div id="arguments_buttons" class="btn-group argument-buttons">
+                <!-- Buttons will be inserted on arguments append -->
             </div>
         </div>
-        <div id="window-container" class="col-xs-10 col-sm-10 col-md-10">{# Windows will be added later #}</div>
+        <span class="copyright">Copyright © 2012 - 2017 <a href="#">OSTIS</a> </span>
     </div>
-
-    <div id="footer" class="navbar navbar-default navbar-fixed-bottom">
-        <div class="navbar-inner">
-            <div id="arguments_container" class="argument-container">
-                <div class="btn-group">
-                    <button id="arguments_clear_button" class="btn btn-danger" sc_control_sys_idtf="ui_control_argument_button_clear"><span class="glyphicon glyphicon-remove-sign"></span></button>
-                    <!--<button id="arguments_add_button" class="btn btn-success" {#sc_control_sys_idtf="ui_control_argument_button_add"#}><span class="glyphicon glyphicon-plus-sign"></span></button>-->
-                </div>
-                
-                <div id="arguments_buttons" class="btn-group argument-buttons">
-                    <!-- Buttons will be inserted on arguments append -->
-                </div>
-            </div>
-            <span class="copyright">Copyright © 2012 - 2017 <a href="#">OSTIS</a> </span>
-        </div>
-    </div>
+</div>
 
 
-    <!-- Modal -->
-    <div id="help-modal" class="modal fade bs-modal-lg" tabindex="-1" role="dialog" aria-labelledby="Help" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div id="help-modal-body" class="modal-content modal-empty">
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div>
+<!-- Modal -->
+<div id="help-modal" class="modal fade bs-modal-lg" tabindex="-1" role="dialog" aria-labelledby="Help"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div id="help-modal-body" class="modal-content modal-empty">
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
 
 
-    <script type="text/javascript">
+<script type="text/javascript">
 
-        $(document).ready(function() {
-            SCWeb.ui.Locker.show();
-            var params = {
-                        menu_container_id: 'menu_container',
-                        {% if first_time == "1" %}first_time: true,{% end %}
-                    };
-            $.when(SCWeb.core.Main.init(params)).done(function() {
-                SCWeb.ui.Locker.hide();
-            });
+    $(document).ready(function () {
+        SCWeb.ui.Locker.show();
+        var params = {
+            menu_container_id: 'menu_container',
+        {%
+            if first_time == "1" %}
+        first_time: true, { % end %
+    }
+    }
+        ;
+        $.when(SCWeb.core.Main.init(params)).done(function () {
+            SCWeb.ui.Locker.hide();
         });
+    });
 
-        
-    </script>
+
+</script>
 
 
 <div id="sc-ui-locker">
     <div id="sc-ui-locker-text">Loading...</div>
-    <div id="sc-ui-locker-icon"></div>   
+    <div id="sc-ui-locker-icon"></div>
 </div>
 
 
