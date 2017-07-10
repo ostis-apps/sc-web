@@ -249,8 +249,7 @@ module.exports = function (grunt) {
         },
         exec: {
             webpack: {
-                command: "webpack",
-                sync: true
+                command: "node ./node_modules/webpack/bin/webpack.js",
             }
         }
     });
