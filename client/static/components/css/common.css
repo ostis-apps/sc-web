@@ -49,7 +49,7 @@ html.drag {
 #static-window-container {
     max-height: calc(100vh - 150px);
     overflow: auto;
-    width: : 15vw;
+    width:  15vw;
     position: fixed;
 }
 
@@ -122,6 +122,54 @@ html.drag {
     margin-top: 4px;
     vertical-align: middle;
     cursor: help;
+}
+
+/* --- Accordion --- */
+
+.left_menu_panel{
+    display: none;
+    position: relative;
+    resize: none;
+    overflow-x: hidden;
+    overflow-y:scroll;
+    right: 0;
+    max-width: 280px;
+    max-height: 65vh;
+    z-index: 99;
+}
+.left_menu_panel>ul>li{
+    position: relative;
+    right: 0;
+    width: 280px;
+    z-index: 99;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    float:right;
+    text-align: center;
+}
+
+.left_menu_panel>ul>li>ul>li{
+    list-style-type: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+.left_menu_panel>ul>li>ul{
+    background-color: #5cb85c;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.left_menu_panel>ul>li>ul>li:hover{
+    border: 1px solid #428bca;
+    border-radius: 4px;
+    background-color: #428bca;
+}
+.left_menu_panel>ul>li>ul>li:hover a {
+    color: white;
+}
+.left_menu_panel>ul>li>ul>li>a{
+    padding: 7px;
+    text-decoration: none;
 }
 
 /* --- Arguments --- */

@@ -77,6 +77,10 @@ SCWeb.ui.WindowManager = {
             printDocument.close();
         });
 
+        $('#comand_btn').click(function () {
+            $("#menu_container_eekb").toggle("slide", {direction: "right"}, 400);
+        });
+
         $('#history-item-link').popover({
             content: $.proxy(self.getUrlToCurrentWindow, self)
         });
