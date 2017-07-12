@@ -28,17 +28,19 @@ export function EekbPanel() {
 
         if (item.cmd_type === 'cmd_noatom') {
             return `
-<li class="dropdown">
-    <a sc_addr="${item.id}" id="${item.id}" class="menu-item menu-cmd-noatom dropdown-toggle" data-toggle="dropdown" href="#" >
-        <span class="text">${state.namesMap[item.id] || item.id}</span>
-        <b class="caret"></b>
-    </a>
-<ul class="dropdown-menu">${childs}</ul></li>`;
+                    <li class="dropdown">
+                        <a sc_addr="${item.id}" id="${item.id}" class="menu-item menu-cmd-noatom dropdown-toggle not-argument" data-toggle="dropdown" href="#" >
+                            <span class="text">${state.namesMap[item.id] || item.id}</span>
+                            <b class="caret"></b>
+                        </a>
+                    <ul class="dropdown-menu">${childs}</ul></li>
+                    `;
         } else if (item.cmd_type === 'cmd_atom') {
             return `
-<li>
-    <a id="${item.id}" sc_addr="${item.id}" class="menu-item menu-cmd-atom" >${state.namesMap[item.id] || item.id}</a>
-</li>`;
+                    <li>
+                        <a id="${item.id}" sc_addr="${item.id}" class="menu-item menu-cmd-atom not-argument" >${state.namesMap[item.id] || item.id}</a>
+                    </li>
+                    `;
         } else {
             throw new Error('illegal command type')
             // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="menu-item menu-cmd-keynode" >' + item.id + '</a>';
@@ -138,6 +140,9 @@ export function EekbPanel() {
         state = newState;
 
         $(menu_container_eekb_id).html(_render());
+
+        _registerMenuHandler();
+
     }
 
     let init = function init(params) {
@@ -171,7 +176,6 @@ export function EekbPanel() {
             namesMap: {}
         });
 
-        _registerMenuHandler();
         return jQuery.when();
     }.bind(this);
 

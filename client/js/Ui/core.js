@@ -43,7 +43,7 @@ SCWeb.ui.Core = {
 
             var sc_elements_arg_selector = '[sc_addr]:not(.sc-window)';
             $('body').delegate(sc_elements_arg_selector, 'click', function (e) {
-                if (SCWeb.ui.ArgumentsPanel.isArgumentAddState()) {
+                if (SCWeb.ui.ArgumentsPanel.isArgumentAddState() && !$(e.currentTarget).hasClass('not-argument')) {
                     SCWeb.core.Arguments.appendArgument($(this).attr('sc_addr'));
                     e.stopPropagation();
                 }

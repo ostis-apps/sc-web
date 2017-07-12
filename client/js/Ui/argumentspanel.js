@@ -67,7 +67,7 @@ SCWeb.ui.ArgumentsPanel = {
         var idx_str = idx.toString();
         var self = this;
 
-        var new_button = '<button class="btn btn-primary argument-item argument-translate-state" sc_addr="'
+        var new_button = '<button class="btn btn-primary argument-item argument-translate-state not-argument" sc_addr="'
             + argument
             + '" arg_idx="'
             + idx_str
