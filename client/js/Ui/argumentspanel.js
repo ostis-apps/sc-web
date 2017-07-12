@@ -44,6 +44,14 @@ SCWeb.ui.ArgumentsPanel = {
         return this.argument_add_state;
     },
 
+    setArgumentAddState: function () {
+        this.argument_add_state = true;
+    },
+
+    removeArgumentAddState: function () {
+        this.argument_add_state = false;
+    },
+
     updateArgumentAddState: function () {
         var add_button = $("#arguments_add_button");
         if (this.argument_add_state) {
@@ -55,9 +63,6 @@ SCWeb.ui.ArgumentsPanel = {
 
     // ------- Arguments listener interface -----------
     onArgumentAppended: function (argument, idx) {
-
-        this.argument_add_state = false;
-        this.updateArgumentAddState();
 
         var idx_str = idx.toString();
         var self = this;

@@ -200,7 +200,7 @@ module.exports = function (grunt) {
         watch: {
             core: {
                 files: webCoreCompPath + '**',
-                tasks: ['concat:webcore', 'exec:webpack'],
+                tasks: ['concat:webcore', 'exec:webpack', 'concat:bundle'],
             },
             githubJs: {
                 files: githubDirPath + 'src/**',
