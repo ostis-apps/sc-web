@@ -133,6 +133,7 @@ html.drag {
 /* --- Accordion --- */
 
 .left_menu_panel{
+    background-color: white;
     display: none;
     position: relative;
     resize: none;
@@ -143,37 +144,27 @@ html.drag {
     max-height: calc(100vh - 275px);
     z-index: 99;
 }
-.left_menu_panel>ul>li{
+.left_menu_panel ul{
     position: relative;
     right: 0;
-    width: 250px;
+    max-width: 250px;
     z-index: 99;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    background-color: #5cb85c;
+    border: 1px solid #5cb85c;
+    border-radius: 4px;
     float:right;
     text-align: center;
 }
 
-.left_menu_panel>ul>li>ul>li{
+.left_menu_panel ul li{
+    margin: 2px;
     list-style-type: none;
-    border: 1px solid #ccc;
+    border: 1px solid #5cb85c;
     border-radius: 4px;
     background-color: white;
 }
-.left_menu_panel>ul>li>ul{
-    background-color: #5cb85c;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-.left_menu_panel>ul>li>ul>li:hover{
-    border: 1px solid #428bca;
-    border-radius: 4px;
-    background-color: #428bca;
-}
-.left_menu_panel>ul>li>ul>li:hover a {
-    color: white;
-}
-.left_menu_panel>ul>li>ul>li>a{
+.left_menu_panel a{
+    outline: none;
     text-decoration: none;
 }
 

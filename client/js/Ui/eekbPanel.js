@@ -73,6 +73,21 @@ export function EekbPanel() {
                 }
             }
         });
+        $('.eekb-menu-item').hover(function () {
+            if($(this).parent("li").parent("ul").hasClass("nav navbar-nav"))
+                return false;
+            $(this).parent("li").css({
+                "background-color":"#337ab7"
+            });
+            $(this).css({"color":"white"});
+        },function () {
+            if($(this).parent("li").parent("ul").hasClass("nav navbar-nav"))
+                return false;
+            $(this).parent("li").css({
+                "background-color":"white"
+            });
+            $(this).css({"color":"#337ab7"});
+        });
     }
 
     function _contextMenu(target) {
