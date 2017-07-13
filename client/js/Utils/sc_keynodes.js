@@ -9,6 +9,8 @@ ScKeynodes.prototype.init = function () {
 
     $.when(
         this.resolveKeynode('ui_menu_root_for_eekb', 'menu_eekb'),
+        this.resolveKeynode('ui_nrel_command_template'),
+        this.resolveKeynode('question'),
 
         this.resolveKeynode('nrel_system_identifier'),
         this.resolveKeynode('nrel_main_idtf'),

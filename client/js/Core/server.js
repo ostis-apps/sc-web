@@ -255,6 +255,44 @@ SCWeb.core.Server = {
         });
     },
 
+    checkCommandArgument: function (cmd_addr, arguments_length) {
+        return new Promise((resolve, reject) => {
+            window.sctpClient.iterate_constr(
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                    [   parseInt(cmd_addr),
+                        sc_type_arc_common | sc_type_const,
+                        sc_type_node | sc_type_const | sc_type_node_struct,
+                        sc_type_arc_pos_const_perm,
+                        window.scKeynodes.ui_nrel_command_template
+                    ],
+                    {"contour": 2}),
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                    [   window.scKeynodes.question,
+                        sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
+                        sc_type_node | sc_type_var,
+                        sc_type_arc_pos_const_perm,
+                        "contour"
+                    ],
+                    {"instance": 2}),
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                    [   "instance",
+                        sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
+                        sc_type_node | sc_type_const,
+                        sc_type_arc_pos_const_perm,
+                        "contour"
+                    ])
+            ).done(function (results) {
+                if (results.results.length == arguments_length) {
+                    resolve();
+                } else {
+                    reject("wrong arguments");
+                }
+            }).fail(function () {
+                reject("fail in search");
+            });
+        });
+    },
+
     /*! Function to initiate user command on server
      * @param {cmd_addr} sc-addr of command
      * @param {output_addr} sc-addr of output language
@@ -263,15 +301,22 @@ SCWeb.core.Server = {
      */
     doCommand: function (cmd_addr, arguments_list, callback) {
 
-        var arguments = this._makeArgumentsList(arguments_list);
-        arguments['cmd'] = cmd_addr;
+        let length = arguments_list.length;
+        var promise = this.checkCommandArgument(cmd_addr, length);
+        promise.then(
+            (result) => {
+                var arguments = this._makeArgumentsList(arguments_list);
+                arguments['cmd'] = cmd_addr;
 
-        this._push_task({
-            type: "POST",
-            url: "api/cmd/do/",
-            data: arguments,
-            success: callback
-        });
+                this._push_task({
+                    type: "POST",
+                    url: "api/cmd/do/",
+                    data: arguments,
+                    success: callback
+                });
+            }, (fail) => {
+                alert(fail);
+            });
     },
 
     /*! Function to initiate natural language query on server
