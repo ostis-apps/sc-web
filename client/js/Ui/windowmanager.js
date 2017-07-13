@@ -77,8 +77,15 @@ SCWeb.ui.WindowManager = {
             printDocument.close();
         });
 
-        $('#comand_btn').click(function () {
-            $("#menu_container_eekb").toggle("slide", {direction: "right"}, 400);
+        $('#eekb_comand_btn').click(function () {
+            let menu = $("#menu_container_eekb");
+            menu.toggle("slide", {direction: "right"}, 400, () =>{
+                if(menu.is(":visible")){
+                    SCWeb.ui.ArgumentsPanel.setArgumentAddState();
+                } else {
+                    SCWeb.ui.ArgumentsPanel.removeArgumentAddState();
+                }
+            });
         });
 
         $('#history-item-link').popover({

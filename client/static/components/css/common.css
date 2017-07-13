@@ -124,6 +124,12 @@ html.drag {
     cursor: help;
 }
 
+.eekb-menu-item {
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 /* --- Accordion --- */
 
 .left_menu_panel{
@@ -131,16 +137,16 @@ html.drag {
     position: relative;
     resize: none;
     overflow-x: hidden;
-    overflow-y:scroll;
+    overflow-y: auto;
     right: 0;
-    max-width: 280px;
-    max-height: 65vh;
+    max-width: 250px;
+    max-height: calc(100vh - 275px);
     z-index: 99;
 }
 .left_menu_panel>ul>li{
     position: relative;
     right: 0;
-    width: 280px;
+    width: 250px;
     z-index: 99;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -168,7 +174,6 @@ html.drag {
     color: white;
 }
 .left_menu_panel>ul>li>ul>li>a{
-    padding: 7px;
     text-decoration: none;
 }
 

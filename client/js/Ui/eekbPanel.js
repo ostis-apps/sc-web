@@ -29,28 +29,28 @@ export function EekbPanel() {
         if (item.cmd_type === 'cmd_noatom') {
             return `
                     <li>
-                        <a sc_addr="${item.id}" id="${item.id}" class="menu-item menu-cmd-noatom  not-argument"  href="#" >
+                        <a sc_addr="${item.id}" id="${item.id}" class="eekb-menu-item menu-cmd-noatom ui-no-tooltip not-argument"  href="#" >
                             <span class="text">${state.namesMap[item.id] || item.id}</span>
                             <b class="caret"></b>
                         </a>
-                    <ul style="display: none">${childs}</ul></li>
+                    <ul style="padding-left: 20px; display: none">${childs}</ul></li>
                     `;
         } else if (item.cmd_type === 'cmd_atom') {
             return `
                     <li>
-                        <a id="${item.id}" sc_addr="${item.id}" class="menu-item menu-cmd-atom not-argument" >${state.namesMap[item.id] || item.id}</a>
+                        <a id="${item.id}" sc_addr="${item.id}" class="eekb-menu-item menu-cmd-atom ui-no-tooltip not-argument" >${state.namesMap[item.id] || item.id}</a>
                     </li>
                     `;
         } else {
             throw new Error('illegal command type')
-            // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="menu-item menu-cmd-keynode" >' + item.id + '</a>';
+            // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="eekb-menu-item menu-cmd-keynode" >' + item.id + '</a>';
         }
 
     }
 
     function _registerMenuHandler() {
 
-        $('.menu-item').click(function () {
+        $('.eekb-menu-item').click(function () {
             var sc_addr = $(this).attr('sc_addr');
             if ($(this).hasClass('menu-cmd-atom')) {
                 Main.doCommand(sc_addr, Arguments._arguments);
@@ -65,14 +65,11 @@ export function EekbPanel() {
                     else{
                         comandList.slideUp("slow");
                     }
-
                 }
-
                 if ($(this).hasClass('menu-cmd-keynode')) {
                     Main.doDefaultCommand([sc_addr]);
                     return ;
                 }
-
             }
         });
     }
