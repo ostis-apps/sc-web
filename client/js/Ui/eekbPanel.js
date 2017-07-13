@@ -42,7 +42,8 @@ export function EekbPanel() {
                     </li>
                     `;
         } else {
-            throw new Error('illegal command type')
+            console.log("Command ${item.id} not have cmd_type");
+            //throw new Error('illegal command type')
             // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="eekb-menu-item menu-cmd-keynode" >' + item.id + '</a>';
         }
 
