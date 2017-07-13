@@ -45,7 +45,8 @@ ScKeynodes.prototype.init = function () {
         this.resolveKeynode('binary_int32'),
         this.resolveKeynode('binary_int64'),
         this.resolveKeynode('format_html'),
-        this.resolveKeynode('nrel_format')
+        this.resolveKeynode('nrel_format'),
+        this.resolveKeynode('nrel_command_order'),
     ).done(function () {
         dfd.resolve();
     }).fail(function () {
