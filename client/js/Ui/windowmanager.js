@@ -82,8 +82,10 @@ SCWeb.ui.WindowManager = {
             menu.toggle("slide", {direction: "right"}, 400, () =>{
                 if(menu.is(":visible")){
                     SCWeb.ui.ArgumentsPanel.setArgumentAddState();
+                    context.hidden = true;
                 } else {
                     SCWeb.ui.ArgumentsPanel.removeArgumentAddState();
+                    context.hidden = false;
                 }
             });
         });

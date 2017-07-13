@@ -5,7 +5,7 @@
  */
 
 var context = context || (function () {
-    
+
 	var options = {
 		fadeSpeed: 100,
 		filter: function ($obj) {
@@ -97,6 +97,9 @@ var context = context || (function () {
 	function addContext(selector, dataPromise) {
 				
 		$(document).on('contextmenu', selector, function (e) {
+
+			if (context.hidden) return;
+
 			e.preventDefault();
 			e.stopPropagation();
         
@@ -156,6 +159,7 @@ var context = context || (function () {
 		init: initialize,
 		settings: updateOptions,
 		attach: addContext,
+		hidden: false
 		//destroy: destroyContext
 	};
 })();
