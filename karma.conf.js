@@ -21,7 +21,6 @@ module.exports = function (config) {
 
         // ... normal karma configuration
         files: [
-            // all files ending in "_test"
             {pattern: 'client/static/common/jquery/jquery-2.1.3.js', watched: false},
             {pattern: 'client/static/common/jquery/jquery.namespace.js', watched: false},
             {pattern: './build/concat.js', watched: false},
@@ -32,6 +31,7 @@ module.exports = function (config) {
         preprocessors: {
             // add webpack as preprocessor
             'client/js/Ui/*.spec.js': ['webpack', 'sourcemap'],
+            'client/js/Ui/*.js': ['sourcemap'],
         },
 
         webpack: {
