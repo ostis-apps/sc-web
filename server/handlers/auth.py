@@ -50,8 +50,64 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
                                         role = role)
                 
         self.set_secure_cookie(self.cookie_user_key, key, 1)
-        
-            
+        self.authorise_user(email)
+        self.register_user(email)
+
+
+    def authorise_user(self, email):
+
+        with SctpClientInstance() as sctp_client:
+            keys = Keynodes(sctp_client)
+
+            links = sctp_client.find_links_with_content(str(email))
+            if links and len(links) == 1:
+                user = sctp_client.iterate_elements(
+                                            SctpIteratorType.SCTP_ITERATOR_5_A_A_F_A_F,
+                                            ScElementType.sc_type_node | ScElementType.sc_type_const,
+                                            ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                            links[0],
+                                            ScElementType.sc_type_arc_pos_const_perm,
+                                            keys[KeynodeSysIdentifiers.nrel_email]
+                                            )
+
+                bin_arc = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                                 keys[KeynodeSysIdentifiers.Myself], user[0][0])
+
+                sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                                       keys[KeynodeSysIdentifiers.nrel_authorised_user], bin_arc)
+
+    def register_user(self, email):
+
+        with SctpClientInstance() as sctp_client:
+            keys = Keynodes(sctp_client)
+
+            links = sctp_client.find_links_with_content(str(email))
+            if links and len(links) == 1:
+                user = sctp_client.iterate_elements(
+                                            SctpIteratorType.SCTP_ITERATOR_5_A_A_F_A_F,
+                                            ScElementType.sc_type_node | ScElementType.sc_type_const,
+                                            ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                            links[0],
+                                            ScElementType.sc_type_arc_pos_const_perm,
+                                            keys[KeynodeSysIdentifiers.nrel_email]
+                                            )
+                if user and user[0] and user[0][0]:
+                    results = sctp_client.iterate_elements(
+                            SctpIteratorType.SCTP_ITERATOR_5_F_A_F_A_F,
+                            keys[KeynodeSysIdentifiers.Myself],
+                            ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                            user[0][0],
+                            ScElementType.sc_type_arc_pos_const_perm,
+                            keys[KeynodeSysIdentifiers.nrel_registered_user]
+                            )
+
+                    if results is None:
+                        bin_arc = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                                 keys[KeynodeSysIdentifiers.Myself], user[0][0])
+                        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                                       keys[KeynodeSysIdentifiers.nrel_registered_user], bin_arc)
+
+
     @tornado.gen.coroutine
     def get(self):
         self.settings[self._OAUTH_SETTINGS_KEY]['key'] = tornado.options.options.google_client_id
@@ -82,7 +138,6 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
             user = json.loads(response.body)           
             
             self._loggedin(user)
-            
             self.redirect('/')
             
         else:
@@ -99,5 +154,33 @@ class LogOut(base.BaseHandler):
     
     @tornado.web.asynchronous
     def get(self):
+        self.logout_user_from_kb()
         self.clear_cookie(self.cookie_user_key)
         self.redirect('/')
+
+    def logout_user_from_kb(self):
+        with SctpClientInstance() as sctp_client:
+            keys = Keynodes(sctp_client)
+            sc_session = logic.ScSession(self, sctp_client, keys)
+            links = sctp_client.find_links_with_content(str(sc_session.email))
+            if links and len(links) == 1:
+                user = sctp_client.iterate_elements(
+                        SctpIteratorType.SCTP_ITERATOR_5_A_A_F_A_F,
+                        ScElementType.sc_type_node | ScElementType.sc_type_const,
+                        ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                        links[0],
+                        ScElementType.sc_type_arc_pos_const_perm,
+                        keys[KeynodeSysIdentifiers.nrel_email]
+                    )
+
+                results = sctp_client.iterate_elements(
+                        SctpIteratorType.SCTP_ITERATOR_5_F_A_F_A_F,
+                        keys[KeynodeSysIdentifiers.Myself],
+                        ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                        user[0][0],
+                        ScElementType.sc_type_arc_pos_const_perm,
+                        keys[KeynodeSysIdentifiers.nrel_authorised_user]
+                        )
+
+                if results and results[0] and results[0][1]:
+                    sctp_client.erase_element(results[0][1])
