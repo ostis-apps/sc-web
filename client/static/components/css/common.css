@@ -145,6 +145,7 @@ html.drag {
     z-index: 99;
 }
 .left_menu_panel ul{
+    width:100%;
     position: relative;
     right: 0;
     z-index: 99;
