@@ -147,7 +147,6 @@ html.drag {
 .left_menu_panel ul{
     position: relative;
     right: 0;
-    max-width: 250px;
     z-index: 99;
     background-color: #5cb85c;
     border: 1px solid #5cb85c;
@@ -157,6 +156,7 @@ html.drag {
 }
 
 .left_menu_panel ul li{
+    width:98%;
     margin: 2px;
     list-style-type: none;
     border: 1px solid #5cb85c;
