@@ -280,7 +280,7 @@ SCWeb.core.Server = {
                     {"instance": 2}),
                 SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
                     [   "instance",
-                        sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
+                        sc_type_var,
                         sc_type_node | sc_type_const,
                         sc_type_arc_pos_const_perm,
                         "contour"
