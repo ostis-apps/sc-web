@@ -166,10 +166,6 @@ SCWeb.core.Server = {
                             });
                         });
                     });
-
-                    if (user.is_authenticated) {
-                        $('#eekb_comand_btn').css("display","")
-                    }
                 }
         });        
     },

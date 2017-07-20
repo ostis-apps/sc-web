@@ -77,19 +77,6 @@ SCWeb.ui.WindowManager = {
             printDocument.close();
         });
 
-        $('#eekb_comand_btn').click(function () {
-            let menu = $("#menu_container_eekb");
-            menu.toggle("slide", {direction: "right"}, 400, () =>{
-                if(menu.is(":visible")){
-                    SCWeb.ui.ArgumentsPanel.setArgumentAddState();
-                    context.hidden = true;
-                } else {
-                    SCWeb.ui.ArgumentsPanel.removeArgumentAddState();
-                    context.hidden = false;
-                }
-            });
-        });
-
         $('#history-item-link').popover({
             content: $.proxy(self.getUrlToCurrentWindow, self)
         });

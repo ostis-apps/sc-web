@@ -276,6 +276,34 @@ export function EekbPanel() {
     let init = function init(params) {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
 
+        $('#eekb_comand_btn').click(function () {
+            let menu = $("#menu_container_eekb");
+            menu.toggle("slide", {direction: "right"}, 400, () =>{
+
+                function rightClick(e) {
+                    const addr = $(this).context.activeElement.getAttribute('sc_addr');
+                    if (addr) {
+                        SCWeb.core.Arguments.appendArgument(addr);
+                        e.stopPropagation();
+                    }
+                }
+
+                let selector = '[sc_addr]:not(.sc-window)';
+
+                if(menu.is(":visible")){
+                    context.hidden = true;
+                    $(document).bind('contextmenu.eekbPanel', selector, rightClick);
+                } else {
+                    context.hidden = false;
+                    $(document).unbind('contextmenu.eekbPanel');
+                }
+            });
+        });
+
+        if (Main.user.is_authenticated) {
+            $('#eekb_comand_btn').css("display","")
+        }
+
         // register for translation updates
         EventManager.subscribe("translation/get", this, function (objects) {
             var items = getObjectsToTranslate();
