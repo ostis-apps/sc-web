@@ -76,6 +76,7 @@ def main():
             (r"/", MainHandler),
 
             (r"/static/(.*)", NoCacheStaticHandler, {"path": tornado.options.options.static_path}),
+            (r'/client/(.*)', NoCacheStaticHandler, {'path': '../client'}),
 
             # api
             (r"/api/init/", api.Init),
