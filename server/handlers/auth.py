@@ -21,6 +21,7 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
     def _loggedin(self, user):
                
         email = user['email']
+        user_name = user['name']
         if len(email) == 0:
             return
         database = db.DataBase()
@@ -50,8 +51,8 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
                                         role = role)
                 
         self.set_secure_cookie(self.cookie_user_key, key, 1)
+        self.register_user(email, user_name)
         self.authorise_user(email)
-        self.register_user(email)
 
 
     def authorise_user(self, email):
@@ -76,7 +77,7 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
                 sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
                                        keys[KeynodeSysIdentifiers.nrel_authorised_user], bin_arc)
 
-    def register_user(self, email):
+    def register_user(self, email, user_name):
 
         with SctpClientInstance() as sctp_client:
             keys = Keynodes(sctp_client)
@@ -102,10 +103,55 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
                             )
 
                     if results is None:
-                        bin_arc = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
-                                                 keys[KeynodeSysIdentifiers.Myself], user[0][0])
-                        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
-                                       keys[KeynodeSysIdentifiers.nrel_registered_user], bin_arc)
+                        self.gen_registred_user_relation(sctp_client, keys, user[0][0])
+                else:
+                    user_node = self.create_ui_user_node_at_kb(sctp_client, keys, email, user_name)
+                    self.gen_registred_user_relation(sctp_client, keys, user_node)
+            else:
+                user_node = self.create_ui_user_node_at_kb(sctp_client, keys, email, user_name)
+                self.gen_registred_user_relation(sctp_client, keys, user_node)
+
+
+    def create_ui_user_node_at_kb(self, sctp_client, keys, email, userName):
+        user_node = sctp_client.create_node(ScElementType.sc_type_node | ScElementType.sc_type_const)
+
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                               keys[KeynodeSysIdentifiers.ui_user], user_node)
+
+        # create system_idtf
+        sys_idtf = email.split('@')[0]
+        sys_idtf_link = sctp_client.create_link()
+        sctp_client.set_link_content(sys_idtf_link, str(sys_idtf.encode('utf-8')))
+        bin_arc_sys_idtf = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                                  user_node, sys_idtf_link)
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                               keys[KeynodeSysIdentifiers.nrel_system_identifier], bin_arc_sys_idtf)
+
+        # create main_idtf (lang_ru) TODO: main idtf for all languages
+        main_idtf_link = sctp_client.create_link()
+        sctp_client.set_link_content(main_idtf_link, str(userName.encode('utf-8')))
+        bin_arc_main_idtf = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                                  user_node, main_idtf_link)
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                               keys[KeynodeSysIdentifiers.nrel_main_idtf], bin_arc_main_idtf)
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                               keys[KeynodeSysIdentifiers.lang_ru], main_idtf_link)
+
+        # create email
+        email_link = sctp_client.create_link()
+        sctp_client.set_link_content(email_link, str(email.encode('utf-8')))
+        bin_arc_email = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                                  user_node, email_link)
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                               keys[KeynodeSysIdentifiers.nrel_email], bin_arc_email)
+
+        return user_node
+
+    def gen_registred_user_relation(self, sctp_client, keys, user):
+        bin_arc = sctp_client.create_arc(ScElementType.sc_type_arc_common | ScElementType.sc_type_const,
+                                             keys[KeynodeSysIdentifiers.Myself], user)
+        sctp_client.create_arc(ScElementType.sc_type_arc_pos_const_perm,
+                                   keys[KeynodeSysIdentifiers.nrel_registered_user], bin_arc)
 
 
     @tornado.gen.coroutine
