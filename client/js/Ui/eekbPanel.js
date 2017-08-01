@@ -1,7 +1,10 @@
-import {Arguments, EventManager, Main, Server} from "./index.js";
-import {assert, logConstants} from "../Utils/logUtils"
 
-export function restoreOrder(scList) {
+let EventManager = SCWeb.core.EventManager;
+let Main = SCWeb.core.Main;
+let Arguments = SCWeb.core.Arguments;
+let Server = SCWeb.core.Server;
+
+function restoreOrder(scList) {
     if (!Array.isArray(scList)) throw Error('not array');
     let childToPrevious = {};
     let lastChild;
@@ -24,13 +27,13 @@ export function restoreOrder(scList) {
 
     let list = [lastChild];
     let previous;
-    while (previous = childToPrevious[list[0]]) {
-        list = [previous].concat(list)
+    while ((previous = childToPrevious[list[0]])) {
+        list = [previous].concat(list);
     }
     return list;
 }
 
-export function restoreOrderOfMenuItems(menuItem) {
+function restoreOrderOfMenuItems(menuItem) {
     if (menuItem.cmd_type !== 'cmd_noatom') return new Promise(resolve => resolve(menuItem));
     let idToChild = {};
     menuItem.childs.forEach(child => idToChild[child.id] = child);
@@ -52,7 +55,7 @@ export function restoreOrderOfMenuItems(menuItem) {
         })
 }
 
-export function getScList(parentMenuAddr) {
+function getScList(parentMenuAddr) {
     return new Promise((resolve, reject) => {
         let promise = window.sctpClient.iterate_constr(
             SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
@@ -84,10 +87,10 @@ export function getScList(parentMenuAddr) {
 }
 
 //###########################REMOVE#############################
-export let menuItems;
+let menuItems;
 //###########################REMOVE#############################
 
-export function EekbPanel() {
+function EekbPanel() {
     let state = {};
     let _items = [];
     let menu_container_eekb_id;
