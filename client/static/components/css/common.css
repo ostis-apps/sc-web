@@ -131,7 +131,7 @@ html.drag {
 }
 
 /* --- Accordion --- */
-
+/*
 .left_menu_panel{
     background-color: white;
     display: none;
@@ -168,7 +168,7 @@ html.drag {
     outline: none;
     text-decoration: none;
 }
-
+*/
 /* --- Arguments --- */
 .argument-wait {
     background: #5cb85c url("../images/argument-cog.gif") no-repeat center center;

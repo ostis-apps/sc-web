@@ -1,9 +1,8 @@
-
 let EventManager = SCWeb.core.EventManager;
 let Main = SCWeb.core.Main;
 let Arguments = SCWeb.core.Arguments;
 let Server = SCWeb.core.Server;
-
+let eekbMenuInstance;
 function restoreOrder(scList) {
     if (!Array.isArray(scList)) throw Error('not array');
     let childToPrevious = {};
@@ -86,10 +85,6 @@ function getScList(parentMenuAddr) {
         })
 }
 
-//###########################REMOVE#############################
-let menuItems;
-//###########################REMOVE#############################
-
 function EekbPanel() {
     let state = {};
     let _items = [];
@@ -97,18 +92,17 @@ function EekbPanel() {
 
     function _render() {
         _items = [];
-        let childs = state.menuData.childs.map(_parseMenuItem).join('');
-        return `<ul class="nav navbar-nav">${childs}</ul>`;
+        return state.menuData.childs.map(_parseMenuItem);
     }
 
     function _parseMenuItem(item) {
         //every time element builds, new array of commands ids collects
         _items.push(item.id);
 
-        let childs = '';
+        let childs = [];
         if (item.childs) {
             if (item.ordered) {
-                childs = item.childs.map(_parseMenuItem).join('');
+                childs = item.childs.map(_parseMenuItem);
             } else {
                 childs = item.childs.map(item => [item, state.namesMap[item.id] || item.id])
                     .map(item => {
@@ -118,33 +112,29 @@ function EekbPanel() {
                     })
                     .sort((item1, item2) => item1[1].localeCompare(item2[1]))
                     .map(item => item[0])
-                    .map(_parseMenuItem)
-                    .join('')
+                    .map(_parseMenuItem);
             }
         }
 
         if (item.cmd_type === 'cmd_noatom') {
-            return `
-                    <li>
-                        <a sc_addr="${item.id}" id="${item.id}" class="eekb-menu-item menu-cmd-noatom ui-no-tooltip not-argument" href="#" >
-                            <span class="text">${state.namesMap[item.id] || item.id}</span>
-                            <b class="caret"></b>
-                        </a>
-                    <ul style="padding-left: 20px; display: none">${childs}</ul></li>
-                    `;
+            return {
+                sc_addr: item.id,
+                id: item.id,
+                text: state.namesMap[item.id] || item.id,
+                nodes: childs
+            };
         } else if (item.cmd_type === 'cmd_atom') {
-            return `
-                    <li>
-                        <a id="${item.id}" sc_addr="${item.id}" class="eekb-menu-item menu-cmd-atom ui-no-tooltip not-argument" >${state.namesMap[item.id] || item.id}</a>
-                    </li>
-                    `;
+            return {
+                sc_addr: item.id,
+                id: item.id,
+                text: state.namesMap[item.id] || item.id,
+                nodes: childs
+            };
         } else {
             console.log("Command ${item.id} not have cmd_type");
-            //throw new Error('illegal command type')
-            // itemHtml = '<li><a id="' + item.id + '"sc_addr="' + item.id + '" class="eekb-menu-item menu-cmd-keynode" >' + item.id + '</a>';
+            return {};
         }
-
-    }
+    };
 
     function _registerMenuHandler() {
 
@@ -264,15 +254,20 @@ function EekbPanel() {
         })
     }
 
+
+    //############################# REMOVE ##########################################################
+    window.addEventListener("patch", (event) => {
+        console.log("Patched @ " + new Date().toTimeString().substring(-1, 8), event.detail.url);
+
+        setState(state);
+    });
+    //###############################################################################################
+
     function setState(newState) {
         state = newState;
+        $('#menu_container_eekb').treeview({data: _render()});
 
-        //################################REMOVE#############################
-        menuItems = newState.menuData;
-        //################################REMOVE#############################
-        $(menu_container_eekb_id).html(_render());
-
-        _registerMenuHandler();
+//        _registerMenuHandler();
 
     }
 
@@ -281,7 +276,7 @@ function EekbPanel() {
 
         $('#eekb_comand_btn').click(function () {
             let menu = $("#menu_container_eekb");
-            menu.toggle("slide", {direction: "right"}, 400, () =>{
+            menu.toggle("slide", {direction: "right"}, 400, () => {
 
                 function rightClick(e) {
                     const addr = $(this).context.activeElement.getAttribute('sc_addr');
@@ -293,7 +288,7 @@ function EekbPanel() {
 
                 let selector = '[sc_addr]:not(.sc-window)';
 
-                if(menu.is(":visible")){
+                if (menu.is(":visible")) {
                     context.hidden = true;
                     $(document).bind('contextmenu.eekbPanel', selector, rightClick);
                 } else {
@@ -304,7 +299,7 @@ function EekbPanel() {
         });
 
         if (Main.user.is_authenticated) {
-            $('#eekb_comand_btn').css("display","")
+            $('#eekb_comand_btn').css("display", "");
         }
 
         // register for translation updates
@@ -330,10 +325,6 @@ function EekbPanel() {
 
         context.attach('[sc_addr]', _contextMenu);
 
-        //###########################REMOVE#############################
-        menuItems = params.menu_eekb;
-        //###########################REMOVE#############################
-
         restoreOrderOfMenuItems(params.menu_eekb)
             .then(menuData => {
                 logConstants.UPDATE_EEKB_ENTRY_STATE('resore order');
@@ -352,8 +343,7 @@ function EekbPanel() {
         return jQuery.when();
     }.bind(this);
 
-
-    return {
+    eekbMenuInstance = {
         init: init,
 
         _render: _render,
@@ -376,6 +366,7 @@ function EekbPanel() {
         /**
          * @return Returns list obj sc-elements that need to be translated
          */
-        getObjectsToTranslate: getObjectsToTranslate,
+        getObjectsToTranslate: getObjectsToTranslate
     };
+    return eekbMenuInstance;
 }

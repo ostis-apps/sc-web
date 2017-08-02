@@ -12,4 +12,6 @@ let writeHTML = (buildFile) => (fileName) => (source) =>
 
 let state = a[process.argv[2]];
 let file = process.argv[3];
+
+//don't scare, it's just function which returns function which returns function
 writeHTML(buildCurrent)(file)(state);
