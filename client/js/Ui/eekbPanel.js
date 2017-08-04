@@ -3,6 +3,7 @@ let Main = SCWeb.core.Main;
 let Arguments = SCWeb.core.Arguments;
 let Server = SCWeb.core.Server;
 let eekbMenuInstance;
+
 function restoreOrder(scList) {
     if (!Array.isArray(scList)) throw Error('not array');
     let childToPrevious = {};
@@ -56,30 +57,35 @@ function restoreOrderOfMenuItems(menuItem) {
 
 function getScList(parentMenuAddr) {
     return new Promise((resolve, reject) => {
-        let promise = window.sctpClient.iterate_constr(
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
-                [
-                    sc_type_node | sc_type_const,
-                    sc_type_arc_common | sc_type_const,
-                    parentMenuAddr,
-                    sc_type_arc_pos_const_perm,
-                    window.scKeynodes.nrel_ui_commands_decomposition
-                ], {decomposition: 0}),
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
-                'decomposition',
-                sc_type_arc_pos_const_perm,
-                sc_type_node
-            ], {child: 2}),
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
-                'child',
-                sc_type_arc_common,
-                sc_type_node,
-                sc_type_arc_pos_const_perm,
-                window.scKeynodes.nrel_command_order
-            ], {nextChild: 2}))
-            .done(resolve);
-        promise.fail(reject);
-    })
+            let promise = window.sctpClient.iterate_constr(
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
+                        sc_type_node | sc_type_const,
+                        sc_type_arc_common | sc_type_const,
+                        parentMenuAddr,
+                        sc_type_arc_pos_const_perm,
+                        window.scKeynodes.nrel_ui_commands_decomposition
+                    ], {
+                        decomposition: 0
+                    }),
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
+                        'decomposition',
+                        sc_type_arc_pos_const_perm,
+                        sc_type_node
+                    ], {
+                        child: 2
+                    }),
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
+                        'child',
+                        sc_type_arc_common,
+                        sc_type_node,
+                        sc_type_arc_pos_const_perm,
+                        window.scKeynodes.nrel_command_order
+                    ], {
+                        nextChild: 2
+                    }))
+                .done(resolve);
+            promise.fail(reject);
+        })
         .then(r => {
             return r.results.map((el, i) => [r.get(i, 'child'), r.get(i, 'nextChild')])
         })
@@ -89,6 +95,7 @@ function EekbPanel() {
     let state = {};
     let _items = [];
     let menu_container_eekb_id;
+    let treeView;
 
     function _render() {
         _items = [];
@@ -121,14 +128,20 @@ function EekbPanel() {
                 sc_addr: item.id,
                 id: item.id,
                 text: state.namesMap[item.id] || item.id,
-                nodes: childs
+                nodes: childs,
+                state: {
+                    expanded: false
+                }
+
             };
         } else if (item.cmd_type === 'cmd_atom') {
             return {
                 sc_addr: item.id,
                 id: item.id,
                 text: state.namesMap[item.id] || item.id,
-                nodes: childs
+                state: {
+                    expanded: false
+                }
             };
         } else {
             console.log("Command ${item.id} not have cmd_type");
@@ -138,42 +151,15 @@ function EekbPanel() {
 
     function _registerMenuHandler() {
 
-        $('.eekb-menu-item').click(function () {
+        $('.eekb-menu-item').click(function() {
             var sc_addr = $(this).attr('sc_addr');
             if ($(this).hasClass('menu-cmd-atom')) {
                 Main.doCommand(sc_addr, Arguments._arguments);
             } else {
-                if (!$(this).parent("li").hasClass("dropdown")) {
-                    var comandList = $(this).next("ul");
-
-                    if (comandList.css("display") == "none") {
-                        $(this).parent("li").parent("ul").find("ul").slideUp("slow");
-                        comandList.slideDown("slow");
-                    }
-                    else {
-                        comandList.slideUp("slow");
-                    }
-                }
                 if ($(this).hasClass('menu-cmd-keynode')) {
                     Main.doDefaultCommand([sc_addr]);
-                    return;
                 }
             }
-        });
-        $('.eekb-menu-item').hover(function () {
-            if ($(this).parent("li").parent("ul").hasClass("nav navbar-nav"))
-                return false;
-            $(this).parent("li").css({
-                "background-color": "#337ab7"
-            });
-            $(this).css({"color": "white"});
-        }, function () {
-            if ($(this).parent("li").parent("ul").hasClass("nav navbar-nav"))
-                return false;
-            $(this).parent("li").css({
-                "background-color": "white"
-            });
-            $(this).css({"color": "#337ab7"});
         });
     }
 
@@ -181,12 +167,12 @@ function EekbPanel() {
         var dfd = new jQuery.Deferred();
         var args = Arguments._arguments.slice();
         args.push(target.attr('sc_addr'));
-        Server.contextMenu(args, function (data) {
+        Server.contextMenu(args, function(data) {
 
 
-            var parseMenuItem = function (item) {
+            var parseMenuItem = function(item) {
                 var menu_item = {};
-                menu_item.action = function (e) {
+                menu_item.action = function(e) {
                     Main.doCommand(item, args);
                 }
 
@@ -198,7 +184,7 @@ function EekbPanel() {
                 menu.push(parseMenuItem(data[i]))
             }
 
-            var applyTranslation = function (item, id, text) {
+            var applyTranslation = function(item, id, text) {
                 if (item.text == id) {
                     item.text = text;
                 }
@@ -209,7 +195,7 @@ function EekbPanel() {
                 }
             };
 
-            Server.resolveIdentifiers(data, function (namesMap) {
+            Server.resolveIdentifiers(data, function(namesMap) {
 
                 for (var itemId in namesMap) {
                     if (namesMap.hasOwnProperty(itemId)) {
@@ -220,7 +206,7 @@ function EekbPanel() {
                 }
 
                 // sort menu
-                menu.sort(function (a, b) {
+                menu.sort(function(a, b) {
                     if (a.text > b.text)
                         return 1;
                     if (a.text < b.text)
@@ -230,7 +216,7 @@ function EekbPanel() {
 
                 menu.unshift({
                     text: '<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>',
-                    action: function (e) {
+                    action: function(e) {
                         Arguments.appendArgument(target.attr('sc_addr'));
                     }
                 });
@@ -251,37 +237,48 @@ function EekbPanel() {
         setState({
             menuData: state.menuData,
             namesMap: namesMap
-        })
+        });
     }
 
 
-    //############################# REMOVE ##########################################################
-    window.addEventListener("patch", (event) => {
-        console.log("Patched @ " + new Date().toTimeString().substring(-1, 8), event.detail.url);
-
-        setState(state);
-    });
-    //###############################################################################################
-
     function setState(newState) {
         state = newState;
-        $('#menu_container_eekb').treeview({data: _render()});
-
-//        _registerMenuHandler();
-
+        let render = _render();
+        let expandedNode;
+        let treeViewNode = $('#menu_container_eekb');
+        treeView = treeViewNode.treeview({
+            data: render
+        }).treeview(true);
+        _registerMenuHandler();
     }
 
     let init = function init(params) {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
 
-        $('#eekb_comand_btn').click(function () {
+        //############################# REMOVE ##########################################################
+        window.addEventListener("patch", (event) => {
+            console.log("Patched @ " + new Date().toTimeString().substring(0, 8), event.detail.url);
+
+            setState(state);
+
+        });
+        //###############################################################################################
+        let menuIsVisible = false;
+        $('#eekb_comand_btn').click(function() {
             let menu = $("#menu_container_eekb");
-            menu.toggle("slide", {direction: "right"}, 400, () => {
+            menuIsVisible = !menuIsVisible;
+            menu.css({
+                display: menuIsVisible
+            });
+            menu.toggle("slide", {
+                direction: "right"
+            }, 400, () => {
 
                 function rightClick(e) {
                     const addr = $(this).context.activeElement.getAttribute('sc_addr');
                     if (addr) {
-                        SCWeb.core.Arguments.appendArgument(addr);
+                        Arguments.appendArgument(addr);
+                        e.preventDefault();
                         e.stopPropagation();
                     }
                 }
@@ -298,19 +295,24 @@ function EekbPanel() {
             });
         });
 
+        $("#menu_container_eekb").css({
+            width: "250px",
+            display: menuIsVisible || "none"
+        });
+
         if (Main.user.is_authenticated) {
             $('#eekb_comand_btn').css("display", "");
         }
 
         // register for translation updates
-        EventManager.subscribe("translation/get", this, function (objects) {
+        EventManager.subscribe("translation/get", this, function(objects) {
             var items = getObjectsToTranslate();
             for (var i in items) {
                 objects.push(items[i]);
             }
         });
 
-        EventManager.subscribe("translation/update", this, function (names) {
+        EventManager.subscribe("translation/update", this, function(names) {
             updateTranslation(names);
         });
 
