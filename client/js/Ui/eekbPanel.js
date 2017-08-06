@@ -52,7 +52,7 @@ function restoreOrderOfMenuItems(menuItem) {
             console.log(e && e.stack || logConstants.COMMAND_ORDER_iS_NOT_EXISTS(menuItem.id));
             return Promise.all(menuItem.childs.map(restoreOrderOfMenuItems))
                 .then(() => menuItem);
-        })
+        });
 }
 
 function getScList(parentMenuAddr) {
@@ -88,7 +88,7 @@ function getScList(parentMenuAddr) {
         })
         .then(r => {
             return r.results.map((el, i) => [r.get(i, 'child'), r.get(i, 'nextChild')])
-        })
+        });
 }
 
 function EekbPanel() {
@@ -129,6 +129,7 @@ function EekbPanel() {
                 id: item.id,
                 text: state.namesMap[item.id] || item.id,
                 nodes: childs,
+                cmd_type: 'cmd_noatom',
                 state: {
                     expanded: false
                 }
@@ -139,6 +140,7 @@ function EekbPanel() {
                 sc_addr: item.id,
                 id: item.id,
                 text: state.namesMap[item.id] || item.id,
+                cmd_type: 'cmd_atom',
                 state: {
                     expanded: false
                 }
@@ -151,16 +153,6 @@ function EekbPanel() {
 
     function _registerMenuHandler() {
 
-        $('.eekb-menu-item').click(function() {
-            var sc_addr = $(this).attr('sc_addr');
-            if ($(this).hasClass('menu-cmd-atom')) {
-                Main.doCommand(sc_addr, Arguments._arguments);
-            } else {
-                if ($(this).hasClass('menu-cmd-keynode')) {
-                    Main.doDefaultCommand([sc_addr]);
-                }
-            }
-        });
     }
 
     function _contextMenu(target) {
@@ -174,14 +166,14 @@ function EekbPanel() {
                 var menu_item = {};
                 menu_item.action = function(e) {
                     Main.doCommand(item, args);
-                }
+                };
 
                 return item;
-            }
+            };
 
             var menu = [];
             for (i in data) {
-                menu.push(parseMenuItem(data[i]))
+                menu.push(parseMenuItem(data[i]));
             }
 
             var applyTranslation = function(item, id, text) {
@@ -246,10 +238,23 @@ function EekbPanel() {
         let render = _render();
         let expandedNode;
         let treeViewNode = $('#menu_container_eekb');
-        treeView = treeViewNode.treeview({
-            data: render
+        let cliskOnNode = (event, data) => {
+            var sc_addr = data.sc_addr;
+            if (sc_addr) {
+                if (data.sc_addr) {
+                    Main.doCommand(sc_addr, Arguments._arguments);
+                } else {
+                    if ($(this).hasClass('menu-cmd-keynode')) {
+                        Main.doDefaultCommand([sc_addr]);
+                    }
+                }
+            }
+        };
+        let treeView = treeViewNode.treeview({
+            data: render,
+            onNodeSelected: cliskOnNode,
+            onNodeUnselected: cliskOnNode
         }).treeview(true);
-        _registerMenuHandler();
     }
 
     let init = function init(params) {
