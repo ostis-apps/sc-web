@@ -27,7 +27,7 @@ SCWeb.ui.Core = {
             SCWeb.ui.LanguagePanel.init(data),
             SCWeb.ui.WindowManager.init(data),
             SCWeb.ui.SearchPanel.init(),
-            new EekbPanel.EekbPanel().init(data),
+            new EekbPanel().init(data),
             SCWeb.ui.KeyboardHandler.init(SCWeb.ui.WindowManager),
             self.resolveElementsAddr('body')
         ).done(function () {

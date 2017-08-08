@@ -200,7 +200,7 @@ module.exports = function (grunt) {
         watch: {
             core: {
                 files: webCoreCompPath + '**',
-                tasks: ['concat:webcore', 'exec:webpack', 'concat:bundle'],
+                tasks: ['concat:webcore'],
             },
             githubJs: {
                 files: githubDirPath + 'src/**',
@@ -249,7 +249,10 @@ module.exports = function (grunt) {
         },
         exec: {
             webpack: {
-                command: "node ./node_modules/webpack/bin/webpack.js",
+                command: "node ./node_modules/webpack/bin/webpack.js"
+            },
+            "dev-html": {
+                command: "node modules/create-html.js dev client/templates/components.html"
             }
         }
     });
@@ -261,6 +264,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-exec');
 
     grunt.registerTask('default', ['build', 'watch']);
-    grunt.registerTask('build', ['concat', 'copy', "exec:webpack", 'concat:bundle']);
+    grunt.registerTask('build', ['concat', 'copy', 'concat:bundle', "exec:dev-html"]);
 
 };
