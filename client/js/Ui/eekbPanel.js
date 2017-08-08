@@ -126,7 +126,6 @@ function EekbPanel() {
         if (item.cmd_type === 'cmd_noatom') {
             return {
                 sc_addr: item.id,
-                id: item.id,
                 text: state.namesMap[item.id] || item.id,
                 nodes: childs,
                 cmd_type: 'cmd_noatom',
@@ -138,7 +137,6 @@ function EekbPanel() {
         } else if (item.cmd_type === 'cmd_atom') {
             return {
                 sc_addr: item.id,
-                id: item.id,
                 text: state.namesMap[item.id] || item.id,
                 cmd_type: 'cmd_atom',
                 state: {
@@ -238,9 +236,10 @@ function EekbPanel() {
         let render = _render();
         let expandedNode;
         let treeViewNode = $('#menu_container_eekb');
-        let cliskOnNode = (event, data) => {
+        treeViewNode.treeview('remove');
+        let clickOnNode = (event, data) => {
             var sc_addr = data.sc_addr;
-            if (sc_addr) {
+            if (sc_addr && data.cmd_type === 'cmd_atom') {
                 if (data.sc_addr) {
                     Main.doCommand(sc_addr, Arguments._arguments);
                 } else {
@@ -249,11 +248,26 @@ function EekbPanel() {
                     }
                 }
             }
+            // it's caused by fucking changing state of third-party plugin
+            let treeView = treeViewNode.treeview(true);
+
+            treeView.unselectNode(data.nodeId);
+            let nodeExpandState = data.state.expanded;
+            treeView.collapseAll(data.nodeId, {
+                silent: true
+            });
+            if (!nodeExpandState) {
+                treeView.toggleNodeExpanded(data.nodeId, {
+                    silent: true
+                });
+            }
+            treeView.revealNode(data.nodeId, {
+                silent: true
+            });
         };
-        let treeView = treeViewNode.treeview({
+        treeViewNode.treeview({
             data: render,
-            onNodeSelected: cliskOnNode,
-            onNodeUnselected: cliskOnNode
+            onNodeSelected: clickOnNode
         }).treeview(true);
     }
 
