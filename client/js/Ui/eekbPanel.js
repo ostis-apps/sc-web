@@ -56,38 +56,37 @@ function restoreOrderOfMenuItems(menuItem) {
 }
 
 
-
 function getScList(parentMenuAddr) {
     return new Promise((resolve, reject) => {
-            let promise = window.sctpClient.iterate_constr(
-                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
-                        sc_type_node | sc_type_const,
-                        sc_type_arc_common | sc_type_const,
-                        parentMenuAddr,
-                        sc_type_arc_pos_const_perm,
-                        window.scKeynodes.nrel_ui_commands_decomposition
-                    ], {
-                        decomposition: 0
-                    }),
-                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
-                        'decomposition',
-                        sc_type_arc_pos_const_perm,
-                        sc_type_node
-                    ], {
-                        child: 2
-                    }),
-                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
-                        'child',
-                        sc_type_arc_common,
-                        sc_type_node,
-                        sc_type_arc_pos_const_perm,
-                        window.scKeynodes.nrel_command_order
-                    ], {
-                        nextChild: 2
-                    }))
-                .done(resolve);
-            promise.fail(reject);
-        })
+        let promise = window.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
+                sc_type_node | sc_type_const,
+                sc_type_arc_common | sc_type_const,
+                parentMenuAddr,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_ui_commands_decomposition
+            ], {
+                decomposition: 0
+            }),
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
+                'decomposition',
+                sc_type_arc_pos_const_perm,
+                sc_type_node
+            ], {
+                child: 2
+            }),
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
+                'child',
+                sc_type_arc_common,
+                sc_type_node,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_command_order
+            ], {
+                nextChild: 2
+            }))
+            .done(resolve);
+        promise.fail(reject);
+    })
         .then(r => {
             return r.results.map((el, i) => [r.get(i, 'child'), r.get(i, 'nextChild')])
         });
@@ -142,6 +141,7 @@ function EekbPanel() {
                 sc_addr: item.id,
                 text: state.namesMap[item.id] || item.id,
                 cmd_type: 'cmd_atom',
+                icon: "no_children",
                 state: {
                     expanded: false
                 }
@@ -152,20 +152,16 @@ function EekbPanel() {
         }
     };
 
-    function _registerMenuHandler() {
-
-    }
-
     function _contextMenu(target) {
         var dfd = new jQuery.Deferred();
         var args = Arguments._arguments.slice();
         args.push(target.attr('sc_addr'));
-        Server.contextMenu(args, function(data) {
+        Server.contextMenu(args, function (data) {
 
 
-            var parseMenuItem = function(item) {
+            var parseMenuItem = function (item) {
                 var menu_item = {};
-                menu_item.action = function(e) {
+                menu_item.action = function (e) {
                     Main.doCommand(item, args);
                 };
 
@@ -177,7 +173,7 @@ function EekbPanel() {
                 menu.push(parseMenuItem(data[i]));
             }
 
-            var applyTranslation = function(item, id, text) {
+            var applyTranslation = function (item, id, text) {
                 if (item.text == id) {
                     item.text = text;
                 }
@@ -188,7 +184,7 @@ function EekbPanel() {
                 }
             };
 
-            Server.resolveIdentifiers(data, function(namesMap) {
+            Server.resolveIdentifiers(data, function (namesMap) {
 
                 for (var itemId in namesMap) {
                     if (namesMap.hasOwnProperty(itemId)) {
@@ -199,7 +195,7 @@ function EekbPanel() {
                 }
 
                 // sort menu
-                menu.sort(function(a, b) {
+                menu.sort(function (a, b) {
                     if (a.text > b.text)
                         return 1;
                     if (a.text < b.text)
@@ -209,7 +205,7 @@ function EekbPanel() {
 
                 menu.unshift({
                     text: '<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>',
-                    action: function(e) {
+                    action: function (e) {
                         Arguments.appendArgument(target.attr('sc_addr'));
                     }
                 });
@@ -259,19 +255,6 @@ function EekbPanel() {
             treeView.toggleNodeExpanded(data.nodeId, {
                 silent: true
             });
-            // 
-            // let nodeExpandState = data.state.expanded;
-            // treeView.collapseAll(data.nodeId, {
-            //     silent: true
-            // });
-            // if (!nodeExpandState) {
-            //     treeView.toggleNodeExpanded(data.nodeId, {
-            //         silent: true
-            //     });
-            // }
-            // treeView.revealNode(data.nodeId, {
-            //     silent: true
-            // });
         };
         treeViewNode.treeview({
             data: render,
@@ -282,16 +265,8 @@ function EekbPanel() {
     let init = function init(params) {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
 
-        //############################# REMOVE ##########################################################
-        window.addEventListener("patch", (event) => {
-            console.log("Patched @ " + new Date().toTimeString().substring(0, 8), event.detail.url);
-
-            setState(state);
-
-        });
-        //###############################################################################################
         let menuIsVisible = false;
-        $('#eekb_comand_btn').click(function() {
+        $('#eekb_comand_btn').click(function () {
             let menu = $("#menu_container_eekb");
             menuIsVisible = !menuIsVisible;
             menu.css({
@@ -332,14 +307,14 @@ function EekbPanel() {
         }
 
         // register for translation updates
-        EventManager.subscribe("translation/get", this, function(objects) {
+        EventManager.subscribe("translation/get", this, function (objects) {
             var items = getObjectsToTranslate();
             for (var i in items) {
                 objects.push(items[i]);
             }
         });
 
-        EventManager.subscribe("translation/update", this, function(names) {
+        EventManager.subscribe("translation/update", this, function (names) {
             updateTranslation(names);
         });
 
@@ -378,8 +353,6 @@ function EekbPanel() {
         _render: _render,
 
         _parseMenuItem: _parseMenuItem,
-
-        _registerMenuHandler: _registerMenuHandler,
 
         _contextMenu: _contextMenu,
 

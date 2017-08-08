@@ -13,3 +13,10 @@
     height: 100%;
     overflow-y: auto;
 }
+
+.list-group-item > span.icon.node-icon.no_children {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    background-image: url(/static/components/images/menu-atom.png);
+}

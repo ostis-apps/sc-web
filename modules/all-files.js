@@ -46,11 +46,13 @@ module.exports = {
             "/static/components/js/file-saver/FileSaver.min.js",
             "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"
         ],
-        css: ["/static/components/css/scg.css",
+        css: [
+            "/static/components/css/scg.css",
             "/static/components/css/scs.css",
             "/static/components/css/html.css",
             "/static/components/css/github.css",
-            "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css","/static/components/css/github.css"
+            "/client/css/core.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css", "/static/components/css/github.css"
         ]
     },
     current: {
