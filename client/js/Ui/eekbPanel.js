@@ -55,6 +55,8 @@ function restoreOrderOfMenuItems(menuItem) {
         });
 }
 
+
+
 function getScList(parentMenuAddr) {
     return new Promise((resolve, reject) => {
             let promise = window.sctpClient.iterate_constr(
@@ -90,6 +92,7 @@ function getScList(parentMenuAddr) {
             return r.results.map((el, i) => [r.get(i, 'child'), r.get(i, 'nextChild')])
         });
 }
+
 
 function EekbPanel() {
     let state = {};
@@ -250,20 +253,25 @@ function EekbPanel() {
             }
             // it's caused by fucking changing state of third-party plugin
             let treeView = treeViewNode.treeview(true);
-
-            treeView.unselectNode(data.nodeId);
-            let nodeExpandState = data.state.expanded;
-            treeView.collapseAll(data.nodeId, {
+            treeView.unselectNode(data.nodeId, {
                 silent: true
             });
-            if (!nodeExpandState) {
-                treeView.toggleNodeExpanded(data.nodeId, {
-                    silent: true
-                });
-            }
-            treeView.revealNode(data.nodeId, {
+            treeView.toggleNodeExpanded(data.nodeId, {
                 silent: true
             });
+            // 
+            // let nodeExpandState = data.state.expanded;
+            // treeView.collapseAll(data.nodeId, {
+            //     silent: true
+            // });
+            // if (!nodeExpandState) {
+            //     treeView.toggleNodeExpanded(data.nodeId, {
+            //         silent: true
+            //     });
+            // }
+            // treeView.revealNode(data.nodeId, {
+            //     silent: true
+            // });
         };
         treeViewNode.treeview({
             data: render,
