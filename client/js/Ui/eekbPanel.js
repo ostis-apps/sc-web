@@ -1,8 +1,10 @@
-let EventManager = SCWeb.core.EventManager;
-let Main = SCWeb.core.Main;
-let Arguments = SCWeb.core.Arguments;
-let Server = SCWeb.core.Server;
-let eekbMenuInstance;
+function restoreCommandsOrder(commands) {
+    let commandsMap = {};
+    commands.forEach(cmd => commandsMap[cmd.sc_addr] = cmd);
+    let scList = commands.map(cmd => [cmd.sc_addr, cmd.nextCommand]);
+    let commandOrder = restoreOrder(scList);
+    return commandOrder.map(sc_addr => commandsMap[sc_addr]);
+}
 
 function restoreOrder(scList) {
     if (!Array.isArray(scList)) throw Error('not array');
@@ -33,67 +35,11 @@ function restoreOrder(scList) {
     return list;
 }
 
-function restoreOrderOfMenuItems(menuItem) {
-    if (menuItem.cmd_type !== 'cmd_noatom') return new Promise(resolve => resolve(menuItem));
-    let idToChild = {};
-    menuItem.childs.forEach(child => idToChild[child.id] = child);
-
-    return getScList(menuItem.id)
-        .then(scList => {
-            console.log(logConstants.COMMAND_ORDER_iS_EXISTS(menuItem.id));
-            let orderedList = restoreOrder(scList);
-            menuItem.childs = orderedList.map(id => idToChild[id]);
-            menuItem.ordered = true;
-            menuItem.childs.forEach(restoreOrderOfMenuItems);
-            return menuItem;
-        })
-        //if don't find order relation return old item
-        .catch(e => {
-            console.log(e && e.stack || logConstants.COMMAND_ORDER_iS_NOT_EXISTS(menuItem.id));
-            return Promise.all(menuItem.childs.map(restoreOrderOfMenuItems))
-                .then(() => menuItem);
-        });
-}
-
-
-function getScList(parentMenuAddr) {
-    return new Promise((resolve, reject) => {
-        let promise = window.sctpClient.iterate_constr(
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
-                sc_type_node | sc_type_const,
-                sc_type_arc_common | sc_type_const,
-                parentMenuAddr,
-                sc_type_arc_pos_const_perm,
-                window.scKeynodes.nrel_ui_commands_decomposition
-            ], {
-                decomposition: 0
-            }),
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
-                'decomposition',
-                sc_type_arc_pos_const_perm,
-                sc_type_node
-            ], {
-                child: 2
-            }),
-            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
-                'child',
-                sc_type_arc_common,
-                sc_type_node,
-                sc_type_arc_pos_const_perm,
-                window.scKeynodes.nrel_command_order
-            ], {
-                nextChild: 2
-            }))
-            .done(resolve);
-        promise.fail(reject);
-    })
-        .then(r => {
-            return r.results.map((el, i) => [r.get(i, 'child'), r.get(i, 'nextChild')])
-        });
-}
-
-
 function EekbPanel() {
+    let EventManager = SCWeb.core.EventManager;
+    let Main = SCWeb.core.Main;
+    let Arguments = SCWeb.core.Arguments;
+    let Server = SCWeb.core.Server;
     let state = {};
     let _items = [];
     let menu_container_eekb_id;
@@ -101,7 +47,8 @@ function EekbPanel() {
 
     function _render() {
         _items = [];
-        return state.menuData.childs.map(_parseMenuItem);
+        let a = _parseMenuItem(state.menuData);
+        return a.nodes;
     }
 
     function _parseMenuItem(item) {
@@ -110,8 +57,10 @@ function EekbPanel() {
 
         let childs = [];
         if (item.childs) {
-            if (item.ordered) {
-                childs = item.childs.map(_parseMenuItem);
+            let numberChildsWithoutNext = item.childs.reduce((number, child) =>
+                child.nextCommand ? number : number + 1, 0);
+            if (numberChildsWithoutNext <= 1) {
+                childs = restoreCommandsOrder(item.childs).map(_parseMenuItem);
             } else {
                 childs = item.childs.map(item => [item, state.namesMap[item.id] || item.id])
                     .map(item => {
@@ -328,15 +277,6 @@ function EekbPanel() {
         });
 
         context.attach('[sc_addr]', _contextMenu);
-
-        restoreOrderOfMenuItems(params.menu_eekb)
-            .then(menuData => {
-                logConstants.UPDATE_EEKB_ENTRY_STATE('resore order');
-                setState({
-                    menuData: menuData,
-                    namesMap: state.namesMap || {}
-                });
-            });
 
         logConstants.UPDATE_EEKB_ENTRY_STATE('init');
         setState({

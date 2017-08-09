@@ -1,6 +1,3 @@
-// Karma configuration
-// Generated on Sun Jul 09 2017 08:29:51 GMT+0300 (+03)
-
 module.exports = function (config) {
     config.set({
 
@@ -20,34 +17,7 @@ module.exports = function (config) {
         frameworks: ['jasmine'],
 
         // ... normal karma configuration
-        files: [
-            {pattern: 'client/static/common/jquery/jquery-2.1.3.js', watched: false},
-            {pattern: 'client/static/common/jquery/jquery.namespace.js', watched: false},
-            {pattern: './build/concat.js', watched: false},
-            {pattern: 'client/js/Ui/*.spec.js', watched: false},
-            // each file acts as entry point for the webpack configuration
-        ],
-
-        preprocessors: {
-            // add webpack as preprocessor
-            'client/js/Ui/*.spec.js': ['webpack', 'sourcemap'],
-            'client/js/Ui/*.js': ['sourcemap'],
-        },
-
-        webpack: {
-            // karma watches the test entry points
-            // (you don't need to specify the entry option)
-            // webpack watches dependencies
-
-            // webpack configuration
-            devtool: 'inline-source-map'
-        },
-
-        webpackMiddleware: {
-            // webpack-dev-middleware configuration
-            // i. e.
-            stats: 'errors-only'
-        },
+        files: ["client/js/Ui/eekbPanel.js", 'client/js/Ui/*.spec.js'],
 
         // list of files to exclude
         exclude: [],
