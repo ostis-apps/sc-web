@@ -46,7 +46,9 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('binary_int64'),
         this.resolveKeynode('format_html'),
         this.resolveKeynode('nrel_format'),
-        this.resolveKeynode('nrel_command_order')).done(function() {
+        this.resolveKeynode('nrel_command_order'),
+        this.resolveKeynode('nrel_command_access')
+    ).done(function() {
         dfd.resolve();
     }).fail(function() {
         throw "Can't resolve keynode";

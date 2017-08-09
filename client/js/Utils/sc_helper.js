@@ -88,15 +88,57 @@ ScHelper.prototype.getMenuCommands = function(menuAddr) {
     let parseCommand = async(cmd_addr) => {
         // determine command type
         let cmd_type = await determineType(cmd_addr);
-        var res = {
-            'cmd_type': cmd_type,
-            'id': cmd_addr
-        };
 
+        // check if command has context
         let isCmdWithContext = await wrapPromise(this.checkEdge(
             window.scKeynodes.ui_user_command_class_noatom,
             sc_type_arc_pos_const_perm,
             cmd_addr));
+
+        let res = {
+            'cmd_type': cmd_type,
+            'id': cmd_addr,
+            'is_cmd_with_context': isCmdWithContext && true
+        };
+
+        // find command roles
+        let rolesContr = await wrapPromise(this.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
+                sc_type_node | sc_type_const,
+                sc_type_arc_common | sc_type_const,
+                cmd_addr,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_command_access
+            ], {
+                tuple: 0
+            }), SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
+                'tuple',
+                sc_type_arc_common | sc_type_const,
+                sc_type_node
+            ], {
+                roles: 2
+            })));
+        if (rolesContr) {
+            let roles = rolesContr.results.map((constr, index) => rolesContr.get(index, 'roles'));
+            res.roles = roles;
+        }
+
+        // find command order
+        let nextCommandConstr = await wrapPromise(this.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
+                cmd_addr,
+                sc_type_arc_common,
+                sc_type_node,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_command_order
+            ], {
+                nextChild: 2
+            })));
+
+        if (nextCommandConstr) {
+            let nextCommand = nextCommandConstr.get(0, "nextChild");
+            res.nextCommand = nextCommand;
+        }
 
         // find childs
         let childrenConstructs = await wrapPromise(this.sctpClient.iterate_constr(
