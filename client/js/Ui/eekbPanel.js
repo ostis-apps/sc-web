@@ -61,6 +61,7 @@ function restoreCommandsOrder(commands, namesMap) {
     return commandOrder.map(sc_addr => commandsMap[sc_addr]);
 }
 
+let panel;
 
 function EekbPanel() {
     let EventManager = SCWeb.core.EventManager;
@@ -72,14 +73,27 @@ function EekbPanel() {
     let menu_container_eekb_id;
     let treeView;
 
-    function _render(menuData, namesMap) {
+    let _hasPermision = (user) => (command) => {
+        if (!command.roles) return true;
+        if (!user.roles) return false;
+        let intersection = command.roles
+            .filter((role) => user.roles.indexOf(role) !== -1);
+        return intersection.length > 0;
+    };
+
+    function _render(state) {
+        let menuData = state.menuData;
+        let namesMap = state.namesMap;
+        let user = state.user;
+
         function _parseMenuItem(item) {
             //every time element builds, new array of commands ids collects
             _items.push(item.sc_addr);
 
             let childs = [];
             if (item.childs) {
-                childs = restoreCommandsOrder(item.childs, namesMap);
+                childs = restoreCommandsOrder(item.childs, namesMap)
+                    .filter(_hasPermision(user));
                 childs = childs
                     .map(_parseMenuItem);
             }
@@ -124,14 +138,18 @@ function EekbPanel() {
         logConstants.UPDATE_EEKB_ENTRY_STATE('update translation');
         setState({
             menuData: state.menuData,
-            namesMap: namesMap
+            namesMap: namesMap,
+            user: state.user
         });
     }
 
 
     function setState(newState) {
         state = newState;
-        let render = _render(state.menuData, state.namesMap);
+
+        panel = state;
+
+        let render = _render(state);
         let expandedNode;
         let treeViewNode = $('#menu_container_eekb');
         treeViewNode.treeview('remove');
@@ -229,7 +247,8 @@ function EekbPanel() {
         logConstants.UPDATE_EEKB_ENTRY_STATE('init');
         setState({
             menuData: params.menu_eekb,
-            namesMap: {}
+            namesMap: {},
+            user: params.user
         });
 
         return jQuery.when();
@@ -239,6 +258,11 @@ function EekbPanel() {
         init: init,
 
         _render: _render,
+
+        /**
+         * Check if user has permision to see command
+         */
+        _hasPermision: _hasPermision,
 
         /**
          * Change state of panel (menu items object and names amp)
