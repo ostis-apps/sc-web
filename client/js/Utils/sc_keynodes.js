@@ -47,7 +47,13 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('format_html'),
         this.resolveKeynode('nrel_format'),
         this.resolveKeynode('nrel_command_order'),
-        this.resolveKeynode('nrel_command_access')
+        this.resolveKeynode('nrel_command_access'),
+        this.resolveKeynode('nrel_authorised_user'),
+        this.resolveKeynode('nrel_registered_user'),
+        this.resolveKeynode('nrel_administrator'),
+        this.resolveKeynode('nrel_manager'),
+        this.resolveKeynode('nrel_expert')
+
     ).done(function() {
         dfd.resolve();
     }).fail(function() {
@@ -57,24 +63,34 @@ ScKeynodes.prototype.init = function() {
     return dfd.promise();
 };
 
-ScKeynodes.prototype.resolveKeynode = function(sys_idtf, property) {
+ScKeynodes.prototype.resolveKeynode = function(sysIdtf, property) {
     var dfd = new jQuery.Deferred();
     var self = this;
 
-    this.sctpClient.find_element_by_system_identifier(sys_idtf).done(function(res) {
+    this.sctpClient.find_element_by_system_identifier(sysIdtf).done(function(res) {
 
-        console.log('Resolved keynode: ' + sys_idtf + ' = ' + res);
+        console.log('Resolved keynode: ' + sysIdtf + ' = ' + res);
         if (property) {
             self[property] = res;
         } else {
-            self[sys_idtf] = res;
+            self[sysIdtf] = res;
         }
 
         dfd.resolve(res);
     }).fail(function() {
-        throw "Can't resolve keynode " + sys_idtf;
+        throw "Can't resolve keynode " + sysIdtf;
         dfd.reject();
     });
 
     return dfd.promise();
+};
+
+ScKeynodes.prototype.getSysIdtfByAddress = function(scAddr) {
+    let sysIdtf = Object.keys(this).map((key) => [key, this[key]]).find((tuple) => tuple[1] === scAddr);
+    if (sysIdtf) {
+        return sysIdtf[0];
+    } else {
+        console.log(`Address of ${scAddr} is not resolved`);
+        return undefined;
+    }
 };
