@@ -1,38 +1,106 @@
-describe('restore order of commands', function () {
-    let joc = jasmine.objectContaining;
-    it('all nodes has nextCommand', () => {
-
-        let data = [{
-            sc_addr: 2,
-            nextCommand: 1
-        }, {
-            sc_addr: 1
-        }];
-        expect(restoreCommandsOrder(data)).toEqual([joc({
-            sc_addr: 2
-        }), joc({
-            sc_addr: 1
-        })]);
-    });
-    it('more all nodes has nextCommand', () => {
-
-        let data = [{
-            sc_addr: 2,
-            nextCommand: 1
-        }, {
-            sc_addr: 1
-        }, {
-            sc_addr: 3,
-            nextCommand: 2
-        }];
-        expect(restoreCommandsOrder(data)).toEqual([joc({
-            sc_addr: 3
-        }), joc({
-            sc_addr: 2
-        }), joc({
-            sc_addr: 1
-        })]);
-    });
+let joc = jasmine.objectContaining;
+describe('restore order of commands', function() {
+    let testData = {
+        'all nodes has nextCommand': {
+            commands: [{
+                sc_addr: 2,
+                nextCommand: 1
+            }, {
+                sc_addr: 1
+            }],
+            expected: [{
+                sc_addr: 2
+            }, {
+                sc_addr: 1
+            }]
+        },
+        'more all nodes has nextCommand': {
+            commands: [{
+                sc_addr: 2,
+                nextCommand: 1
+            }, {
+                sc_addr: 1
+            }, {
+                sc_addr: 3,
+                nextCommand: 2
+            }],
+            expected: [{
+                sc_addr: 3
+            }, {
+                sc_addr: 2
+            }, {
+                sc_addr: 1
+            }]
+        },
+        'has inconsistent sc-list': {
+            commands: [{
+                sc_addr: 2,
+                nextCommand: 1
+            }, {
+                sc_addr: 1
+            }, {
+                sc_addr: 3
+            }],
+            expected: [{
+                sc_addr: 1
+            }, {
+                sc_addr: 2
+            }, {
+                sc_addr: 3
+            }]
+        },
+        'restore order using alpahbetic order of names': {
+            commands: [{
+                sc_addr: 2,
+                nextCommand: 1
+            }, {
+                sc_addr: 1
+            }, {
+                sc_addr: 3
+            }],
+            namesMap: {
+                1: 'bb',
+                2: 'cc',
+                3: 'aa'
+            },
+            expected: [{
+                sc_addr: 3
+            }, {
+                sc_addr: 1
+            }, {
+                sc_addr: 2
+            }]
+        },
+        'has repeting next command works as insonsistent scList': {
+            commands: [{
+                sc_addr: 1,
+                cmd_type: 'cmd_atom',
+                nextCommand: 3
+            }, {
+                sc_addr: 2,
+                cmd_type: 'cmd_atom',
+                nextCommand: 1
+            }, {
+                sc_addr: 3,
+                cmd_type: 'cmd_atom',
+                nextCommand: 1
+            }],
+            expected: [{
+                sc_addr: 1
+            }, {
+                sc_addr: 2
+            }, {
+                sc_addr: 3
+            }]
+        }
+    };
+    for (let description in testData) {
+        it(description, () => {
+            let testCase = testData[description];
+            expect(restoreCommandsOrder(testCase.commands, testCase.namesMap))
+                .toEqual(testCase.expected.map(joc));
+        });
+    }
 });
 
 describe('restore order of sc-list', () => {
@@ -42,6 +110,91 @@ describe('restore order of sc-list', () => {
             [2, 1],
             [3]
         ];
-        expect(restoreOrder(scList)).toEqual([2, 1, 3]);
+        expect(restoreScListOrder(scList)).toEqual([2, 1, 3]);
+    });
+});
+
+describe('_render function return tree data', () => {
+    let eekbMenuPanel;
+    SCWeb = {
+        core: {
+            EventManager: {},
+            Main: {},
+            Arguments: {},
+            Server: {}
+        }
+    };
+
+    beforeEach(() => {
+        eekbMenuPanel = new EekbPanel();
+    });
+    it('returns array', () => {
+        let data = {
+            sc_addr: 0,
+            cmd_type: 'cmd_noatom',
+            childs: [{
+                cmd_type: 'cmd_atom',
+                sc_addr: 1
+            }, {
+                cmd_type: 'cmd_atom',
+                sc_addr: 2
+            }]
+        };
+        expect(eekbMenuPanel._render(data)).toEqual([{
+            sc_addr: 1
+        }, {
+            sc_addr: 2
+        }].map(joc));
+    });
+    it('sort using nextCommand order', () => {
+        let data = {
+            sc_addr: 0,
+            cmd_type: 'cmd_noatom',
+            childs: [{
+                sc_addr: 1,
+                cmd_type: 'cmd_atom'
+            }, {
+                sc_addr: 2,
+                cmd_type: 'cmd_atom',
+                nextCommand: 1
+            }, {
+                sc_addr: 3,
+                cmd_type: 'cmd_atom',
+                nextCommand: 2
+            }]
+        };
+        expect(eekbMenuPanel._render(data)).toEqual([{
+            text: 3
+        }, {
+            text: 2
+        }, {
+            text: 1
+        }].map(joc));
+    });
+    fit('text is name from map or sc-addr if name doesn\'t exist', () => {
+        let data = {
+            sc_addr: 0,
+            cmd_type: 'cmd_noatom',
+            childs: [{
+                sc_addr: 1,
+                cmd_type: 'cmd_atom'
+            }, {
+                sc_addr: 2,
+                cmd_type: 'cmd_atom'
+            }, {
+                sc_addr: 3,
+                cmd_type: 'cmd_atom'
+            }]
+        };
+        let namesMap = {
+            1: "aa"
+        };
+        expect(eekbMenuPanel._render(data, namesMap)).toEqual([{
+            text: 2
+        }, {
+            text: 3
+        }, {
+            text: "aa"
+        }].map(joc));
     });
 });

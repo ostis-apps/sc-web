@@ -1,20 +1,12 @@
-function restoreCommandsOrder(commands) {
-    let commandsMap = {};
-    commands.forEach(cmd => commandsMap[cmd.sc_addr] = cmd);
-    let scList = commands.map(cmd => [cmd.sc_addr, cmd.nextCommand]);
-    let commandOrder = restoreOrder(scList);
-    return commandOrder.map(sc_addr => commandsMap[sc_addr]);
-}
-
-function restoreOrder(scList) {
+function restoreScListOrder(scList) {
     if (!Array.isArray(scList)) throw Error('not array');
     let childToPrevious = {};
     let lastChild;
     scList.forEach(listElem => {
         if (listElem[1]) {
-            childToPrevious[listElem[1]] = listElem[0]
+            childToPrevious[listElem[1]] = listElem[0];
         } else {
-            lastChild = listElem[0]
+            lastChild = listElem[0];
         }
     });
     if (!lastChild) {
@@ -24,7 +16,7 @@ function restoreOrder(scList) {
         });
         lastChild = scList.find(listItem => !hasNext[listItem[1]]);
         if (!lastChild) throw new Error("incorrect list");
-        lastChild = lastChild[1]
+        lastChild = lastChild[1];
     }
 
     let list = [lastChild];
@@ -34,6 +26,41 @@ function restoreOrder(scList) {
     }
     return list;
 }
+
+function restoreCommandsOrder(commands, namesMap) {
+
+    function buildCommandsMap(commands) {
+        let commandsMap = {};
+        commands.forEach(cmd => commandsMap[cmd.sc_addr] = cmd);
+        return commandsMap;
+    }
+    let isScListConsistent = (scList) => {
+        let numberWithoutNext = scList.reduce((number, tuple) =>
+            tuple[1] ? number : number + 1, 0);
+        let entries = {};
+        scList.forEach((tuple) => {
+            if (tuple[1]) entries[tuple[1]] =
+                entries[tuple[1]] ? entries[tuple[1]] + 1 : 1;
+        });
+        let hasRepeating = Object.keys(entries).map((key) => entries[key])
+            .some((item) => item > 1);
+        return (numberWithoutNext <= 1) && !hasRepeating;
+    };
+    let restoreAlphabeticOrder = (scList) => {
+        let list = scList.map(item => item[0])
+            .map(item => [item, '' + (namesMap[item] || item)]);
+        return list.sort((item1, item2) => item1[1].localeCompare(item2[1]))
+            .map(item => item[0]);
+    };
+
+    namesMap = namesMap || {};
+    let commandsMap = buildCommandsMap(commands);
+    let scList = commands.map(cmd => [cmd.sc_addr, cmd.nextCommand]);
+    let commandOrder = isScListConsistent(scList) ? restoreScListOrder(scList) :
+        restoreAlphabeticOrder(scList);
+    return commandOrder.map(sc_addr => commandsMap[sc_addr]);
+}
+
 
 function EekbPanel() {
     let EventManager = SCWeb.core.EventManager;
@@ -45,125 +72,48 @@ function EekbPanel() {
     let menu_container_eekb_id;
     let treeView;
 
-    function _render() {
-        _items = [];
-        let a = _parseMenuItem(state.menuData);
-        return a.nodes;
-    }
+    function _render(menuData, namesMap) {
+        function _parseMenuItem(item) {
+            //every time element builds, new array of commands ids collects
+            _items.push(item.sc_addr);
 
-    function _parseMenuItem(item) {
-        //every time element builds, new array of commands ids collects
-        _items.push(item.id);
-
-        let childs = [];
-        if (item.childs) {
-            let numberChildsWithoutNext = item.childs.reduce((number, child) =>
-                child.nextCommand ? number : number + 1, 0);
-            if (numberChildsWithoutNext <= 1) {
-                childs = restoreCommandsOrder(item.childs).map(_parseMenuItem);
-            } else {
-                childs = item.childs.map(item => [item, state.namesMap[item.id] || item.id])
-                    .map(item => {
-                        //primitive to String
-                        item[1] = '' + item[1];
-                        return item;
-                    })
-                    .sort((item1, item2) => item1[1].localeCompare(item2[1]))
-                    .map(item => item[0])
+            let childs = [];
+            if (item.childs) {
+                childs = restoreCommandsOrder(item.childs, namesMap);
+                childs = childs
                     .map(_parseMenuItem);
             }
-        }
 
-        if (item.cmd_type === 'cmd_noatom') {
-            return {
-                sc_addr: item.id,
-                text: state.namesMap[item.id] || item.id,
-                nodes: childs,
-                cmd_type: 'cmd_noatom',
-                state: {
-                    expanded: false
-                }
+            if (item.cmd_type === 'cmd_noatom') {
+                return {
+                    sc_addr: item.sc_addr,
+                    text: namesMap[item.sc_addr] || item.sc_addr,
+                    nodes: childs,
+                    cmd_type: 'cmd_noatom',
+                    state: {
+                        expanded: false
+                    }
 
-            };
-        } else if (item.cmd_type === 'cmd_atom') {
-            return {
-                sc_addr: item.id,
-                text: state.namesMap[item.id] || item.id,
-                cmd_type: 'cmd_atom',
-                icon: "no_children",
-                state: {
-                    expanded: false
-                }
-            };
-        } else {
-            console.log("Command ${item.id} not have cmd_type");
-            return {};
-        }
-    };
-
-    function _contextMenu(target) {
-        var dfd = new jQuery.Deferred();
-        var args = Arguments._arguments.slice();
-        args.push(target.attr('sc_addr'));
-        Server.contextMenu(args, function (data) {
-
-
-            var parseMenuItem = function (item) {
-                var menu_item = {};
-                menu_item.action = function (e) {
-                    Main.doCommand(item, args);
                 };
-
-                return item;
-            };
-
-            var menu = [];
-            for (i in data) {
-                menu.push(parseMenuItem(data[i]));
+            } else if (item.cmd_type === 'cmd_atom') {
+                return {
+                    sc_addr: item.sc_addr,
+                    text: namesMap[item.sc_addr] || item.sc_addr,
+                    cmd_type: 'cmd_atom',
+                    icon: "no_children",
+                    state: {
+                        expanded: false
+                    }
+                };
+            } else {
+                console.log("Command ${item.sc_addr} not have cmd_type");
+                return {};
             }
-
-            var applyTranslation = function (item, id, text) {
-                if (item.text == id) {
-                    item.text = text;
-                }
-                if (item.subMenu) {
-                    for (i in item.subMenu) {
-                        applyTranslation(item.subMenu[i], id, text);
-                    }
-                }
-            };
-
-            Server.resolveIdentifiers(data, function (namesMap) {
-
-                for (var itemId in namesMap) {
-                    if (namesMap.hasOwnProperty(itemId)) {
-                        for (i in menu) {
-                            applyTranslation(menu[i], itemId, namesMap[itemId]);
-                        }
-                    }
-                }
-
-                // sort menu
-                menu.sort(function (a, b) {
-                    if (a.text > b.text)
-                        return 1;
-                    if (a.text < b.text)
-                        return -1;
-                    return 0;
-                });
-
-                menu.unshift({
-                    text: '<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>',
-                    action: function (e) {
-                        Arguments.appendArgument(target.attr('sc_addr'));
-                    }
-                });
-
-                dfd.resolve(menu);
-            });
-        });
-
-        return dfd.promise();
+        };
+        namesMap = namesMap || {};
+        _items = [];
+        let a = _parseMenuItem(menuData);
+        return a.nodes;
     }
 
     function getObjectsToTranslate() {
@@ -181,7 +131,7 @@ function EekbPanel() {
 
     function setState(newState) {
         state = newState;
-        let render = _render();
+        let render = _render(state.menuData, state.namesMap);
         let expandedNode;
         let treeViewNode = $('#menu_container_eekb');
         treeViewNode.treeview('remove');
@@ -215,7 +165,7 @@ function EekbPanel() {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
 
         let menuIsVisible = false;
-        $('#eekb_comand_btn').click(function () {
+        $('#eekb_comand_btn').click(function() {
             let menu = $("#menu_container_eekb");
             menuIsVisible = !menuIsVisible;
             menu.css({
@@ -256,14 +206,14 @@ function EekbPanel() {
         }
 
         // register for translation updates
-        EventManager.subscribe("translation/get", this, function (objects) {
+        EventManager.subscribe("translation/get", this, function(objects) {
             var items = getObjectsToTranslate();
             for (var i in items) {
                 objects.push(items[i]);
             }
         });
 
-        EventManager.subscribe("translation/update", this, function (names) {
+        EventManager.subscribe("translation/update", this, function(names) {
             updateTranslation(names);
         });
 
@@ -275,8 +225,6 @@ function EekbPanel() {
             //compress: false,
             container: '#main-container'
         });
-
-        context.attach('[sc_addr]', _contextMenu);
 
         logConstants.UPDATE_EEKB_ENTRY_STATE('init');
         setState({
@@ -291,10 +239,6 @@ function EekbPanel() {
         init: init,
 
         _render: _render,
-
-        _parseMenuItem: _parseMenuItem,
-
-        _contextMenu: _contextMenu,
 
         /**
          * Change state of panel (menu items object and names amp)
