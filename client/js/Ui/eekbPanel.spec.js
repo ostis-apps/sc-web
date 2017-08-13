@@ -262,4 +262,27 @@ describe("eekbLLogic", () => {
             expect(eekbMenuPanel._hasPermision(user)(command)).toBe(false);
         });
     });
+    describe(`commands context predicate test,`, () => {
+        it('- command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('- command context, - with-context + with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+    });
 });

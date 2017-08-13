@@ -81,6 +81,23 @@ function EekbPanel() {
         return intersection.length > 0;
     };
 
+    let _hasAppropriateContext = (state) => {
+        //command context/with-context/with-no-context
+        let answerTable = {
+            0b000: true,
+            0b001: true,
+            0b010: false,
+            0b011: true,
+            0b100: true,
+            0b101: false,
+            0b110: true,
+            0b111: true
+        };
+        return (command) => {
+            return command.cmd_type === "cmd_atom" || answerTable[command.is_cmd_with_context << 2 | state.withContext << 1 | state.withNoContext];
+        };
+    };
+
     function _render(state) {
         let menuData = state.menuData;
         let namesMap = state.namesMap;
@@ -93,7 +110,8 @@ function EekbPanel() {
             let childs = [];
             if (item.childs) {
                 childs = restoreCommandsOrder(item.childs, namesMap)
-                    .filter(_hasPermision(user));
+                    .filter(_hasPermision(user))
+                    .filter(_hasAppropriateContext(state));
                 childs = childs
                     .map(_parseMenuItem);
             }
@@ -151,7 +169,7 @@ function EekbPanel() {
 
         let render = _render(state);
         let expandedNode;
-        let treeViewNode = $('#menu_container_eekb');
+        let treeViewNode = $('#menu_container_eekb #tree-view');
         treeViewNode.treeview('remove');
         let clickOnNode = (event, data) => {
             var sc_addr = data.sc_addr;
@@ -181,15 +199,18 @@ function EekbPanel() {
 
     let init = function init(params) {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
+        let $menu = $("#menu_container_eekb");
+        $menu.html(`<div id="context-switcher"></div>
+                    <div id="tree-view"></div>`);
+        let contextSwitcher = new ContextSwitcher("#context-switcher");
 
         let menuIsVisible = false;
         $('#eekb_comand_btn').click(function() {
-            let menu = $("#menu_container_eekb");
             menuIsVisible = !menuIsVisible;
-            menu.css({
+            $menu.css({
                 display: menuIsVisible
             });
-            menu.toggle("slide", {
+            $menu.toggle("slide", {
                 direction: "right"
             }, 400, () => {
 
@@ -204,7 +225,7 @@ function EekbPanel() {
 
                 let selector = '[sc_addr]:not(.sc-window)';
 
-                if (menu.is(":visible")) {
+                if ($menu.is(":visible")) {
                     context.hidden = true;
                     $(document).bind('contextmenu.eekbPanel', selector, rightClick);
                 } else {
@@ -214,7 +235,7 @@ function EekbPanel() {
             });
         });
 
-        $("#menu_container_eekb").css({
+        $menu.css({
             width: "250px",
             display: menuIsVisible || "none"
         });
@@ -249,6 +270,13 @@ function EekbPanel() {
             menuData: params.menu_eekb,
             namesMap: {},
             user: params.user
+        });
+
+        contextSwitcher.onCheckboxChange((chekboxes) => {
+
+            state.withContext = chekboxes.context;
+            state.withNoContext = chekboxes.noContext;
+            setState(state);
         });
 
         return jQuery.when();
