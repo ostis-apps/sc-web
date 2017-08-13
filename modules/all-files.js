@@ -34,7 +34,6 @@ module.exports = {
             '/client/js/Ui/windowmanager.js',
             '/client/js/Ui/OpenComponentHandler.js',
             '/client/js/Ui/userpanel.js',
-            "http://localhost:8080/skewer",
             "/static/components/js/scs/scs.js",
             "/static/components/js/scg/scg.js",
             "/static/components/js/image/image.js",

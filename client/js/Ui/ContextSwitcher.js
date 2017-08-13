@@ -37,10 +37,4 @@ function ContextSwitcher(selector) {
 
     this.setState({});
 
-    // ######################### REMOVE ###########################################
-    window.addEventListener("patch", (event) => {
-        console.log("Patched @ " + new Date().toTimeString().substring(0, 8), event.detail.url);
-        this.setState(this.state);
-    });
-    // ############################################################################
 }

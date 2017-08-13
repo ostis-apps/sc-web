@@ -168,8 +168,10 @@ function EekbPanel() {
         panel = state;
 
         let render = _render(state);
-        let expandedNode;
         let treeViewNode = $('#menu_container_eekb #tree-view');
+        let expandedNodes = treeViewNode.treeview('getExpanded');
+        //plugin is not initialized
+        if (expandedNodes.selector) expandedNodes = [];
         treeViewNode.treeview('remove');
         let clickOnNode = (event, data) => {
             var sc_addr = data.sc_addr;
@@ -194,7 +196,8 @@ function EekbPanel() {
         treeViewNode.treeview({
             data: render,
             onNodeSelected: clickOnNode
-        }).treeview(true);
+        });
+        expandedNodes.forEach((node) => treeViewNode.treeview('expandNode', [node.nodeId]));
     }
 
     let init = function init(params) {
