@@ -84,17 +84,13 @@ function EekbPanel() {
     let _hasAppropriateContext = (state) => {
         //command context/with-context/with-no-context
         let answerTable = {
-            0b000: true,
-            0b001: true,
-            0b010: false,
-            0b011: true,
-            0b100: true,
-            0b101: false,
-            0b110: true,
-            0b111: true
+            0b00: true,
+            0b01: false,
+            0b10: false,
+            0b11: true
         };
         return (command) => {
-            return command.cmd_type === "cmd_atom" || answerTable[command.is_cmd_with_context << 2 | state.withContext << 1 | state.withNoContext];
+            return command.cmd_type === "cmd_noatom" || answerTable[command.is_cmd_with_context << 1 | state.withContext];
         };
     };
 
@@ -109,6 +105,7 @@ function EekbPanel() {
 
             let childs = [];
             if (item.childs) {
+                item.childs.forEach(item => _items.push(item.sc_addr));
                 childs = restoreCommandsOrder(item.childs, namesMap)
                     .filter(_hasPermision(user))
                     .filter(_hasAppropriateContext(state));
@@ -278,7 +275,6 @@ function EekbPanel() {
         contextSwitcher.onCheckboxChange((chekboxes) => {
 
             state.withContext = chekboxes.context;
-            state.withNoContext = chekboxes.noContext;
             setState(state);
         });
 
