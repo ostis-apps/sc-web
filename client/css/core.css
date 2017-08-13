@@ -11,10 +11,16 @@
 #menu_container_eekb {
     width: 250px;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#menu_container_eekb #tree-view {
     overflow-y: auto;
 }
 
-.list-group-item > span.icon.node-icon.no_children {
+.list-group-item>span.icon.node-icon.no_children {
     width: 12px;
     height: 12px;
     display: inline-block;

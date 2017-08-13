@@ -52,7 +52,9 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('nrel_registered_user'),
         this.resolveKeynode('nrel_administrator'),
         this.resolveKeynode('nrel_manager'),
-        this.resolveKeynode('nrel_expert')
+        this.resolveKeynode('nrel_expert'),
+        this.resolveKeynode('ui_command_with_context')
+
 
     ).done(function() {
         dfd.resolve();
