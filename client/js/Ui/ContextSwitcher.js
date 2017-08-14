@@ -3,7 +3,7 @@ function ContextSwitcher(selector) {
 
     this.render = (state) =>
         `<input type="checkbox" id="context"/>
-         <span>context</span>`;
+         <span>С учетом контекста</span>`;
 
     this.setState = (newState) => {
         this.state = newState;
