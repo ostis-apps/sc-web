@@ -99,7 +99,7 @@ ScHelper.prototype.getMenuCommands = function(menuAddr) {
 
         // check if command has context
         let isCmdWithContext = await wrapPromise(this.checkEdge(
-            window.scKeynodes.ui_command_with_context,
+            window.scKeynodes.ui_user_command_with_context,
             sc_type_arc_pos_const_perm,
             cmd_addr));
 
