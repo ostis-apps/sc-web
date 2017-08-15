@@ -1,8 +1,8 @@
-ScHelper = function (sctp_client) {
-    this.sctp_client = sctp_client;
+ScHelper = function(sctpClient) {
+    this.sctpClient = sctpClient;
 };
 
-ScHelper.prototype.init = function () {
+ScHelper.prototype.init = function() {
     var dfd = new jQuery.Deferred();
 
     dfd.resolve();
@@ -17,13 +17,12 @@ ScHelper.prototype.init = function () {
  * @returns Function returns Promise object. If sc-edge exists, then it would be resolved; 
  * otherwise it would be rejected
  */
-ScHelper.prototype.checkEdge = function (addr1, type, addr2) {
-    return this.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F,
-        [
-            addr1,
-            type,
-            addr2
-        ]);
+ScHelper.prototype.checkEdge = function(addr1, type, addr2) {
+    return this.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [
+        addr1,
+        type,
+        addr2
+    ]);
 };
 
 /*! Function to get elements of specified set
@@ -31,16 +30,15 @@ ScHelper.prototype.checkEdge = function (addr1, type, addr2) {
  * @returns Returns promise objects, that resolved with a list of set elements. If 
  * failed, that promise object rejects
  */
-ScHelper.prototype.getSetElements = function (addr) {
+ScHelper.prototype.getSetElements = function(addr) {
     var dfd = new jQuery.Deferred();
 
-    this.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_A,
-        [
+    this.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
             addr,
             sc_type_arc_pos_const_perm,
             sc_type_node | sc_type_const
         ])
-        .done(function (res) {
+        .done(function(res) {
             var langs = [];
 
             for (r in res) {
@@ -49,9 +47,9 @@ ScHelper.prototype.getSetElements = function (addr) {
 
             dfd.resolve(langs);
 
-        }).fail(function () {
-        dfd.reject();
-    });
+        }).fail(function() {
+            dfd.reject();
+        });
 
     return dfd.promise();
 };
@@ -60,101 +58,137 @@ ScHelper.prototype.getSetElements = function (addr) {
  * It returns main menu command object, that contains whole hierarchy as a child objects
  */
 ScHelper.prototype.getMenuCommands = function(menuAddr) {
-    
-    var self = this;
 
-    function determineType(cmd_addr) {
-        var dfd = new jQuery.Deferred();
-        window.scHelper.checkEdge(
+    function wrapPromise(promise) {
+        return new Promise((resolve, reject) => {
+            promise.done(resolve).fail(() => resolve(false));
+        });
+    }
+
+    function resolveSysIdtfs(scAddrs) {
+        // there're no API message wich returns only sys-addr (resolveIdtf resolves sys-addr only if main is'not exists)
+        return new Promise((resolve) => {
+            //  SCWeb.core.Server.resolveIdentifiers(scAddrs, resolve);
+            resolve(scAddrs.map(window.scKeynodes.getSysIdtfByAddress.bind(window.scKeynodes)).filter(key => key));
+        });
+    }
+
+    let determineType = async(cmd_addr) => {
+        let isCmdAtom = await wrapPromise(this.checkEdge(
             window.scKeynodes.ui_user_command_class_atom,
             sc_type_arc_pos_const_perm,
-            cmd_addr)
-            .done(function () {
-                dfd.resolve('cmd_atom');
-            })
-            .fail(function () {
-                window.scHelper.checkEdge(
-                    window.scKeynodes.ui_user_command_class_noatom,
-                    sc_type_arc_pos_const_perm,
-                    cmd_addr)
-                    .done(function () {
-                        dfd.resolve('cmd_noatom');
-                    })
-                    .fail(function () {
-                        dfd.resolve('unknown');
-                    });
-            });
+            cmd_addr));
+        if (isCmdAtom) {
+            return 'cmd_atom';
+        } else {
+            let isCmdNoatom = await wrapPromise(this.checkEdge(
+                window.scKeynodes.ui_user_command_class_noatom,
+                sc_type_arc_pos_const_perm,
+                cmd_addr));
+            if (isCmdNoatom) {
+                return "cmd_noatom";
+            } else {
+                return "unknown";
+            }
+        }
+    };
 
-        return dfd.promise();
-    }
-
-    function parseCommand(cmd_addr, parent_cmd) {
-        var dfd = new jQuery.Deferred();
-
+    let parseCommand = async(cmd_addr) => {
         // determine command type
-        determineType(cmd_addr)
-            .done(function (type) {
-                var res = {};
-                res['cmd_type'] = type;
-                res['id'] = cmd_addr;
+        let cmd_type = await determineType(cmd_addr);
 
-                if (parent_cmd) {
-                    if (!parent_cmd.hasOwnProperty('childs'))
-                        parent_cmd['childs'] = [];
+        // check if command has context
+        let isCmdWithContext = await wrapPromise(this.checkEdge(
+            window.scKeynodes.ui_user_command_with_context,
+            sc_type_arc_pos_const_perm,
+            cmd_addr));
 
-                    parent_cmd.childs.push(res);
-                }
+        let res = {
+            'cmd_type': cmd_type,
+            'id': cmd_addr,
+            'sc_addr': cmd_addr,
+            'is_cmd_with_context': isCmdWithContext && true
+        };
 
-                // try to find decomposition
-                self.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F,
-                    [
-                        sc_type_node | sc_type_const,
-                        sc_type_arc_common | sc_type_const,
-                        cmd_addr,
-                        sc_type_arc_pos_const_perm,
-                        window.scKeynodes.nrel_ui_commands_decomposition
-                    ])
-                    .done(function (it1) {
-                        // iterate child commands
-                        self.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_A,
-                            [
-                                it1[0][0],
-                                sc_type_arc_pos_const_perm,
-                                0
-                            ])
-                            .done(function (it2) {
-                                var childsDef = [];
-                                for (idx in it2) {
-                                    childsDef.push(parseCommand(it2[idx][2], res));
-                                }
+        // find command roles
+        let rolesContr = await wrapPromise(this.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
+                sc_type_node | sc_type_const,
+                sc_type_arc_common | sc_type_const,
+                cmd_addr,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_command_access
+            ], {
+                tuple: 0
+            }), SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
+                'tuple',
+                sc_type_arc_pos_const_perm,
+                0
+            ], {
+                roles: 2
+            })));
+        if (rolesContr) {
+            let roles = rolesContr.results.map((constr, index) => rolesContr.get(index, 'roles'));
+            roles = await resolveSysIdtfs(roles);;
+            roles = Object.keys(roles).map((key) => roles[key]);
+            res.roles = roles;
+        }
 
-                                $.when.apply($, childsDef)
-                                    .done(function () {
-                                        dfd.resolve(res);
-                                    });
-                            })
-                            .fail(function () {
-                                dfd.resolve(res);
-                            });
-                    })
-                    .fail(function () {
-                        dfd.resolve(res);
-                    });
+        // find command order
+        let nextCommandConstr = await wrapPromise(this.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
+                cmd_addr,
+                sc_type_arc_common,
+                sc_type_node,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_command_order
+            ], {
+                nextChild: 2
+            })));
 
-            });
+        if (nextCommandConstr) {
+            let nextCommand = nextCommandConstr.get(0, "nextChild");
+            res.nextCommand = nextCommand;
+        }
 
-        return dfd.promise();
-    }
-    
-    
-    return parseCommand(menuAddr, null);
+        // find childs
+        let childrenConstructs = await wrapPromise(this.sctpClient.iterate_constr(
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [
+                sc_type_node | sc_type_const,
+                sc_type_arc_common | sc_type_const,
+                cmd_addr,
+                sc_type_arc_pos_const_perm,
+                window.scKeynodes.nrel_ui_commands_decomposition
+            ], {
+                decomposition: 0
+            }),
+            SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [
+                'decomposition',
+                sc_type_arc_pos_const_perm,
+                sc_type_node
+            ], {
+                child: 2
+            })));
+        if (!childrenConstructs) return res;
+
+        let childCommandAdr = childrenConstructs.results.map((constr, index) => childrenConstructs.get(index, 'child'));
+        let childrenCommands = await Promise.all(childCommandAdr.map(parseCommand));
+        res.childs = childrenCommands;
+        return res;
+    };
+
+
+    var dfd = new jQuery.Deferred();
+
+    parseCommand(menuAddr).then((result) => dfd.resolve(result));
+    return dfd.promise();
 };
 
 /*! Function to get available native user languages
  * @returns Returns promise object. It will be resolved with one argument - list of 
  * available user native languages. If funtion failed, then promise object rejects.
  */
-ScHelper.prototype.getLanguages = function () {
+ScHelper.prototype.getLanguages = function() {
     return scHelper.getSetElements(window.scKeynodes.languages);
 };
 
@@ -162,7 +196,7 @@ ScHelper.prototype.getLanguages = function () {
  * @returns Returns promise objects, that resolved with a list of available output languages. If 
  * failed, then promise rejects
  */
-ScHelper.prototype.getOutputLanguages = function () {
+ScHelper.prototype.getOutputLanguages = function() {
     return scHelper.getSetElements(window.scKeynodes.ui_external_languages);
 };
 
@@ -171,44 +205,43 @@ ScHelper.prototype.getOutputLanguages = function () {
  * @returns Returns promise object, that resolves with sc-addr of found answer structure.
  * If function fails, then promise rejects
  */
-ScHelper.prototype.getAnswer = function (question_addr) {
+ScHelper.prototype.getAnswer = function(question_addr) {
     var dfd = new jQuery.Deferred();
 
-    (function (_question_addr, _self, _dfd) {
+    (function(_question_addr, _self, _dfd) {
         var fn = this;
 
-        this.timer = window.setTimeout(function () {
+        this.timer = window.setTimeout(function() {
             _dfd.reject();
 
             window.clearTimeout(fn.timer);
             delete fn.timer;
 
             if (fn.event_id) {
-                _self.sctp_client.event_destroy(fn.event_id);
+                _self.sctpClient.event_destroy(fn.event_id);
                 delete fn.event_id;
             }
         }, 10000);
 
-        _self.sctp_client.event_create(SctpEventType.SC_EVENT_ADD_OUTPUT_ARC, _question_addr, function (addr, arg) {
-            _self.checkEdge(window.scKeynodes.nrel_answer, sc_type_arc_pos_const_perm, arg).done(function () {
-                _self.sctp_client.get_arc(arg).done(function (res) {
+        _self.sctpClient.event_create(SctpEventType.SC_EVENT_ADD_OUTPUT_ARC, _question_addr, function(addr, arg) {
+            _self.checkEdge(window.scKeynodes.nrel_answer, sc_type_arc_pos_const_perm, arg).done(function() {
+                _self.sctpClient.get_arc(arg).done(function(res) {
                     _dfd.resolve(res[1]);
-                }).fail(function () {
+                }).fail(function() {
                     _dfd.reject();
                 });
             });
-        }).done(function (res) {
+        }).done(function(res) {
             fn.event_id = res;
-            _self.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                [
+            _self.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
                     _question_addr,
                     sc_type_arc_common | sc_type_const,
                     sc_type_node, /// @todo possible need node struct
                     sc_type_arc_pos_const_perm,
                     window.scKeynodes.nrel_answer
                 ])
-                .done(function (it) {
-                    _self.sctp_client.event_destroy(fn.event_id).fail(function () {
+                .done(function(it) {
+                    _self.sctpClient.event_destroy(fn.event_id).fail(function() {
                         /// @todo process fail
                     });
                     _dfd.resolve(it[0][2]);
@@ -227,28 +260,27 @@ ScHelper.prototype.getAnswer = function (question_addr) {
  * @returns Returns promise object, that resolves with found system identifier.
  * If there are no system identifier, then promise rejects
  */
-ScHelper.prototype.getSystemIdentifier = function (addr) {
+ScHelper.prototype.getSystemIdentifier = function(addr) {
     var dfd = new jQuery.Deferred();
 
     var self = this;
-    this.sctp_client.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-        [
+    this.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
             addr,
             sc_type_arc_common | sc_type_const,
             sc_type_link,
             sc_type_arc_pos_const_perm,
             window.scKeynodes.nrel_system_identifier
         ])
-        .done(function (it) {
-            self.sctp_client.get_link_content(it[0][2])
-                .done(function (res) {
+        .done(function(it) {
+            self.sctpClient.get_link_content(it[0][2])
+                .done(function(res) {
                     dfd.resolve(res);
                 })
-                .fail(function () {
+                .fail(function() {
                     dfd.reject();
                 });
         })
-        .fail(function () {
+        .fail(function() {
             dfd.reject()
         });
 
@@ -261,45 +293,44 @@ ScHelper.prototype.getSystemIdentifier = function (addr) {
  * @returns Returns promise object, that resolves with found identifier. 
  * If there are no any identifier, then promise rejects
  */
-ScHelper.prototype.getIdentifier = function (addr, lang) {
+ScHelper.prototype.getIdentifier = function(addr, lang) {
     var dfd = new jQuery.Deferred();
     var self = this;
 
-    var get_sys = function () {
+    var get_sys = function() {
         self.getSystemIdentifier(addr)
-            .done(function (res) {
+            .done(function(res) {
                 dfd.resolve(res);
             })
-            .fail(function () {
+            .fail(function() {
                 dfd.reject();
             });
     };
 
     window.sctpClient.iterate_constr(
-        SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-            [addr,
-                sc_type_arc_common | sc_type_const,
-                sc_type_link,
-                sc_type_arc_pos_const_perm,
-                window.scKeynodes.nrel_main_idtf
-            ],
-            {"x": 2}),
-        SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_F,
-            [lang,
-                sc_type_arc_pos_const_perm,
-                "x"
-            ])
-    ).done(function (results) {
+        SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [addr,
+            sc_type_arc_common | sc_type_const,
+            sc_type_link,
+            sc_type_arc_pos_const_perm,
+            window.scKeynodes.nrel_main_idtf
+        ], {
+            "x": 2
+        }),
+        SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [lang,
+            sc_type_arc_pos_const_perm,
+            "x"
+        ])
+    ).done(function(results) {
         var link_addr = results.get(0, "x");
 
-        self.sctp_client.get_link_content(link_addr)
-            .done(function (res) {
+        self.sctpClient.get_link_content(link_addr)
+            .done(function(res) {
                 dfd.resolve(res);
             })
-            .fail(function () {
+            .fail(function() {
                 dfd.reject();
             });
-    }).fail(function () {
+    }).fail(function() {
         get_sys();
     });
 

@@ -1,276 +1,288 @@
-import {EekbPanel, restoreOrder, restoreOrderOfMenuItems, getScList} from "./eekbPanel";
-import * as eekb from "./eekbPanel"
-// import {diffChars} from "jasmine-diff-matchers"
+describe("eekbLLogic", () => {
+    let joc = jasmine.objectContaining;
+    let eekbMenuPanel;
+    SCWeb = {
+        core: {
+            EventManager: {},
+            Main: {},
+            Arguments: {},
+            Server: {}
+        }
+    };
 
-//run test twice. there some intresting bug. test runner load previous version of changed file :)
-describe('eekbPanelSpec', () => {
-
-    beforeEach(function () {
-        jasmine.addMatchers(require('jasmine-diff')(jasmine, {
-            colors: true,
-            inline: true
-        }))
-    })
-
-    let createOneLinedString = str => str.split("\n").map(str => str.trim()).join('');
-
-    let testData = [
-        {
-            description: 'first simple example',
-            menuData: {
-                "cmd_type": "cmd_noatom",
-                "id": 328531969,
-                "childs": [{
-                    "cmd_type": "cmd_noatom",
-                    "id": 4019453953,
-                    "childs": [{"cmd_type": "cmd_atom", "id": 831651841}, {
-                        "cmd_type": "cmd_atom",
-                        "id": 4053008385
-                    }, {"cmd_type": "cmd_atom", "id": 3220307969}]
-                }]
-            },
-            expectedHTML: `
-<ul class="nav navbar-nav">
-    <li>
-        <a sc_addr="4019453953" id="4019453953" class="eekb-menu-item menu-cmd-noatom ui-no-tooltip not-argument" href="#" >
-            <span class="text">4019453953</span><b class="caret"></b>
-        </a>
-        <ul style="padding-left: 20px; display: none">
-            <li><a id="3220307969" sc_addr="3220307969" class="eekb-menu-item menu-cmd-atom ui-no-tooltip not-argument" >3220307969</a></li>
-            <li><a id="4053008385" sc_addr="4053008385" class="eekb-menu-item menu-cmd-atom ui-no-tooltip not-argument" >4053008385</a></li>
-            <li><a id="831651841" sc_addr="831651841" class="eekb-menu-item menu-cmd-atom ui-no-tooltip not-argument" >831651841</a></li>
-        </ul>
-    </li>
-</ul>`.trim()
-        },
-        {
-            description: 'no-one children',
-            menuData: {
-                "cmd_type": "cmd_noatom",
-                "id": 328531969,
-                "childs": [{
-                    "cmd_type": "cmd_noatom",
-                    "id": 4019453953,
-                    "childs": []
-                }]
-            },
-            expectedHTML: `
-<ul class="nav navbar-nav">
-    <li>
-        <a sc_addr="4019453953" id="4019453953" class="eekb-menu-item menu-cmd-noatom ui-no-tooltip not-argument" href="#" >
-            <span class="text">4019453953</span><b class="caret"></b>
-        </a>
-        <ul style="padding-left: 20px; display: none"></ul>
-    </li>
-</ul>`
-        }];
-    testData.forEach(testCase => {
-        it(testCase.description, () => {
-            let panel = new EekbPanel();
-            //stub
-            $ = () => {
-                return {
-                    html: () => {
-                    },
-                    click: () => {
-
-                    }, hover: () => {
-
-                    }
-                };
-            };
-            panel.setState({
-                menuData: testCase.menuData || {},
-                namesMap: testCase.namesMap || {}
-            });
-            expect(createOneLinedString(panel._render())).toBe(createOneLinedString(testCase.expectedHTML))
-        })
-    })
-    console.log(`************************************** RUN TWICE ********************* SEE COMMENTS IN THE TOP *****************************
-    file -> (eekbPanel.spec.js:4:0)`)
-});
-
-describe('restoreOrder', () => {
-    let testData = [{
-        description: 'simple list',
-        data: [[2, null], [1, 2],],
-        expected: [1, 2]
-    }, {
-        description: 'longer list',
-        data: [[2, 3], [1, 2], [4, null], [3, 4]],
-        expected: [1, 2, 3, 4]
-    }, {
-        description: 'longer list without null',
-        data: [[2, 3], [1, 2], [4, 5], [3, 4]],
-        expected: [1, 2, 3, 4, 5]
-    }]
-
-    testData.forEach(testCase => {
-        it(testCase.description, () => {
-            expect(restoreOrder(testCase.data)).toEqual(testCase.expected)
-        })
-    })
-});
-
-describe('restore order of menuItems', () => {
     beforeEach(() => {
-        scKeynodes = {
-            nrel_ui_commands_decomposition: true,
-            nrel_command_order: true
-        };
+        eekbMenuPanel = new EekbPanel();
     });
-    it('simple variant', done => {
-            window.sctpClient = {
-                iterate_constr: () => {
-                    return {
-                        done: resolve => resolve((function () {
-                            let arr = [[1, 2], [2, 3], [3, 4], [4, 5]];
-                            return {
-                                get: (i, name) => {
-                                    if (name === 'child') return arr[i][0];
-                                    if (name === 'nextChild') return arr[i][1];
-                                },
-                                results: [1, 1, 1, 1]
-                            }
-                        })())
-                    }
-                }
-            };
 
-            let menuItem = {
-                "cmd_type": "cmd_noatom",
-                "id": 1395785729,
-                "childs": [{
-                    "cmd_type": "cmd_atom",
-                    "id": 2,
+    describe('restore order of commands', function() {
+        let testData = {
+            'all nodes has nextCommand': {
+                commands: [{
+                    sc_addr: 2,
+                    nextCommand: 1
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 1,
+                    sc_addr: 1
+                }],
+                expected: [{
+                    sc_addr: 2
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 3,
+                    sc_addr: 1
+                }]
+            },
+            'more all nodes has nextCommand': {
+                commands: [{
+                    sc_addr: 2,
+                    nextCommand: 1
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 5,
+                    sc_addr: 1
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 4,
+                    sc_addr: 3,
+                    nextCommand: 2
+                }],
+                expected: [{
+                    sc_addr: 3
+                }, {
+                    sc_addr: 2
+                }, {
+                    sc_addr: 1
+                }]
+            },
+            'has inconsistent sc-list': {
+                commands: [{
+                    sc_addr: 2,
+                    nextCommand: 1
+                }, {
+                    sc_addr: 1
+                }, {
+                    sc_addr: 3
+                }],
+                expected: [{
+                    sc_addr: 1
+                }, {
+                    sc_addr: 2
+                }, {
+                    sc_addr: 3
+                }]
+            },
+            'restore order using alpahbetic order of names': {
+                commands: [{
+                    sc_addr: 2,
+                    nextCommand: 1
+                }, {
+                    sc_addr: 1
+                }, {
+                    sc_addr: 3
+                }],
+                namesMap: {
+                    1: 'bb',
+                    2: 'cc',
+                    3: 'aa'
+                },
+                expected: [{
+                    sc_addr: 3
+                }, {
+                    sc_addr: 1
+                }, {
+                    sc_addr: 2
+                }]
+            },
+            'has repeting next command works as insonsistent scList': {
+                commands: [{
+                    sc_addr: 1,
+                    cmd_type: 'cmd_atom',
+                    nextCommand: 3
+                }, {
+                    sc_addr: 2,
+                    cmd_type: 'cmd_atom',
+                    nextCommand: 1
+                }, {
+                    sc_addr: 3,
+                    cmd_type: 'cmd_atom',
+                    nextCommand: 1
+                }],
+                expected: [{
+                    sc_addr: 1
+                }, {
+                    sc_addr: 2
+                }, {
+                    sc_addr: 3
+                }]
+            }
+        };
+        for (let description in testData) {
+            it(description, () => {
+                let testCase = testData[description];
+                expect(restoreCommandsOrder(testCase.commands, testCase.namesMap))
+                    .toEqual(testCase.expected.map(joc));
+            });
+        }
+    });
+    describe('restore order of sc-list', () => {
+        it('simple example', () => {
+            let scList = [
+                [1, 3],
+                [2, 1],
+                [3]
+            ];
+            expect(restoreScListOrder(scList)).toEqual([2, 1, 3]);
+        });
+    });
+    describe('_render function return tree data', () => {
+        it('returns array', () => {
+            let data = {
+                sc_addr: 0,
+                cmd_type: 'cmd_noatom',
+                childs: [{
+                    cmd_type: 'cmd_atom',
+                    sc_addr: 1
+                }, {
+                    cmd_type: 'cmd_atom',
+                    sc_addr: 2
                 }]
             };
-            restoreOrderOfMenuItems(menuItem)
-                .then(menuItem => {
-                    expect(menuItem.childs.map(child => child.id)).toEqual([1, 2, 3, 4, 5]);
-                    expect(menuItem.ordered).toBe(true);
-                }).then(done, done.fail);
-        }
-    );
-    it('do not find order', done => {
-            window.sctpClient = {
-                iterate_constr: () => {
-                    return {
-                        done: function () {
-                            return this;
-                        },
-                        fail: function (fail) {
-                            fail();
-                            return this;
-                        }
-                    }
-                }
-            };
-
-            let menuItem = {
-                "cmd_type": "cmd_noatom",
-                "id": 1395785729,
-                "childs": [{
-                    "cmd_type": "cmd_atom",
-                    "id": 2,
+            expect(eekbMenuPanel._render({
+                menuData: data
+            })).toEqual([{
+                sc_addr: 1
+            }, {
+                sc_addr: 2
+            }].map(joc));
+        });
+        it('sort using nextCommand order', () => {
+            let data = {
+                sc_addr: 0,
+                cmd_type: 'cmd_noatom',
+                childs: [{
+                    sc_addr: 1,
+                    cmd_type: 'cmd_atom'
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 1,
+                    sc_addr: 2,
+                    cmd_type: 'cmd_atom',
+                    nextCommand: 1
                 }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 3,
-                }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 5,
-                }, {
-                    "cmd_type": "cmd_atom",
-                    "id": 4,
+                    sc_addr: 3,
+                    cmd_type: 'cmd_atom',
+                    nextCommand: 2
                 }]
             };
-            restoreOrderOfMenuItems(menuItem)
-                .then(menuItem => {
-                    expect(menuItem.childs.map(child => child.id)).toEqual([2, 1, 3, 5, 4]);
-                    expect(menuItem.ordered).not.toBe(false);
-                }).then(done, done.fail);
-        }
-    );
-    it('do not find order of nested commands', done => {
-            window.sctpClient = {
-                iterate_constr: () => {
-                    return {
-                        done: function () {
-                            return this;
-                        },
-                        fail: function (fail) {
-                            fail();
-                            window.sctpClient = {
-                                iterate_constr: () => {
-                                    return {
-                                        done: resolve => resolve((function () {
-                                            let arr = [[1, 2], [2, 3], [3, 4], [4, 5]];
-                                            return {
-                                                get: (i, name) => {
-                                                    if (name === 'child') return arr[i][0];
-                                                    if (name === 'nextChild') return arr[i][1];
-                                                },
-                                                results: [1, 1, 1, 1]
-                                            }
-                                        })())
-                                    }
-                                }
-                            };
-                            return this;
-                        }
-                    }
-                }
+            expect(eekbMenuPanel._render({
+                menuData: data
+            })).toEqual([{
+                text: 3
+            }, {
+                text: 2
+            }, {
+                text: 1
+            }].map(joc));
+        });
+        it('text is name from map or sc-addr if name doesn\'t exist', () => {
+            let data = {
+                sc_addr: 0,
+                cmd_type: 'cmd_noatom',
+                childs: [{
+                    sc_addr: 1,
+                    cmd_type: 'cmd_atom'
+                }, {
+                    sc_addr: 2,
+                    cmd_type: 'cmd_atom'
+                }, {
+                    sc_addr: 3,
+                    cmd_type: 'cmd_atom'
+                }]
             };
+            let namesMap = {
+                1: "aa"
+            };
+            expect(eekbMenuPanel._render({
+                menuData: data,
+                namesMap: namesMap
+            })).toEqual([{
+                text: 2
+            }, {
+                text: 3
+            }, {
+                text: "aa"
+            }].map(joc));
+        });
+    });
+    describe("isUserHasPermision", () => {
 
-            let menuItem = {
-                cmd_type: "cmd_noatom",
-                id: 1,
-                childs: [
-                    {
-                        "cmd_type": "cmd_noatom",
-                        "id": 1395785729,
-                        "childs": [{
-                            "cmd_type": "cmd_atom",
-                            "id": 2,
-                        }, {
-                            "cmd_type": "cmd_atom",
-                            "id": 1,
-                        }, {
-                            "cmd_type": "cmd_atom",
-                            "id": 3,
-                        }, {
-                            "cmd_type": "cmd_atom",
-                            "id": 5,
-                        }, {
-                            "cmd_type": "cmd_atom",
-                            "id": 4,
-                        }]
-                    }
-                ]
+        it("if user not authorised and command has no roles than permited", () => {
+            let user = {
+                "is_authenticated": false
             };
-            restoreOrderOfMenuItems(menuItem)
-                .then(menuItem => {
-                    expect(menuItem.id).toBe(1);
-                    expect(menuItem.ordered).not.toBe(false);
-                    let child = menuItem.childs[0];
-                    expect(child.childs.map(child => child.id)).toEqual([1, 2, 3, 4, 5]);
-                    expect(child.ordered).toBe(true);
-                }).then(done, done.fail);
-        }
-    );
+            let command = {
+                "cmd_type": "cmd_noatom"
+            };
+            expect(eekbMenuPanel._hasPermision(user)(command)).toBe(true);
+        });
+        it("if user not authorized and command has roles than not permited", () => {
+            let user = {
+                "is_authenticated": false
+            };
+            let command = {
+                "cmd_type": "cmd_noatom",
+                "roles": ["nrel_expert"]
+
+            };
+            expect(eekbMenuPanel._hasPermision(user)(command)).toBe(false);
+        });
+        it("if command has no roles than user has permision", () => {
+            let user = {
+                "roles": ["nrel_authorised_user"],
+                "is_authenticated": true
+            };
+            let command = {
+                "cmd_type": "cmd_noatom"
+            };
+            expect(eekbMenuPanel._hasPermision(user)(command)).toBe(true);
+        });
+        it("if roles of user and command roles has intersection than permited", () => {
+            let user = {
+                "roles": ["nrel_authorised_user"],
+                "is_authenticated": true
+            };
+            let command = {
+                "cmd_type": "cmd_noatom",
+                "roles": ["nrel_expert", "nrel_authorised_user"]
+
+            };
+            expect(eekbMenuPanel._hasPermision(user)(command)).toBe(true);
+        });
+        it("if intersaction empty than not permited", () => {
+            let user = {
+                "roles": ["nrel_authorised_user"],
+                "is_authenticated": true
+            };
+            let command = {
+                "cmd_type": "cmd_noatom",
+                "roles": ["nrel_expert"]
+
+            };
+            expect(eekbMenuPanel._hasPermision(user)(command)).toBe(false);
+        });
+    });
+    describe(`commands context predicate test,`, () => {
+        it('- command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('- command context, - with-context + with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+        it('+ command context, - with-context - with-no-context --> show', () => {
+            throw new Error();
+        });
+    });
 });

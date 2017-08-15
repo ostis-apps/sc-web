@@ -23,6 +23,7 @@ module.exports = {
             '/client/js/Core/eventmanager.js',
             '/client/js/Ui/core.js',
             '/client/js/Ui/menu.js',
+            'client/js/Ui/ContextSwitcher.js',
             '/client/js/Ui/eekbPanel.js',
             '/client/js/Ui/langpanel.js',
             '/client/js/Ui/locker.js',
@@ -33,7 +34,6 @@ module.exports = {
             '/client/js/Ui/windowmanager.js',
             '/client/js/Ui/OpenComponentHandler.js',
             '/client/js/Ui/userpanel.js',
-
             "/static/components/js/scs/scs.js",
             "/static/components/js/scg/scg.js",
             "/static/components/js/image/image.js",
@@ -77,5 +77,3 @@ module.exports = {
         ]
     }
 }
-
-
