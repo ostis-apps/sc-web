@@ -287,6 +287,33 @@ ScHelper.prototype.getSystemIdentifier = function(addr) {
     return dfd.promise();
 };
 
+ScHelper.prototype.getSystemIdentifierPromise = function(addr) {
+    var self = this;
+
+    return new Promise((resolve, reject) => {
+        this.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
+            addr,
+            sc_type_arc_common | sc_type_const,
+            sc_type_link,
+            sc_type_arc_pos_const_perm,
+            window.scKeynodes.nrel_system_identifier
+        ])
+            .done(function (it) {
+                self.sctpClient.get_link_content(it[0][2])
+                    .done(function (res) {
+                        resolve(res);
+                    })
+                    .fail(function () {
+                        reject("getSystemIdentifierPromise get_link_content");
+                    });
+            })
+            .fail(function () {
+                reject("getSystemIdentifierPromise iterate_elements")
+            });
+
+    });
+};
+
 /*! Function to get element identifer
  * @param addr sc-addr of element to get identifier
  * @param lang sc-addr of language

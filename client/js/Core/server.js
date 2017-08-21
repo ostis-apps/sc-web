@@ -280,13 +280,23 @@ SCWeb.core.Server = {
                         sc_type_node | sc_type_const,
                         sc_type_arc_pos_const_perm,
                         "contour"
-                    ])
+                    ],
+                    {"arg": 2})
             ).done(function (results) {
-                if (results.results.length == arguments_length) {
-                    resolve();
-                } else {
-                    reject("wrong arguments");
-                }
+                let argsPromise = results.results.map((arg, index) => {
+                    let addr = results.get(index, "arg");
+                    return window.scHelper.getSystemIdentifierPromise(addr);
+                });
+                Promise.all(argsPromise).then(values => {
+                    let arguments = values.filter((element) => {
+                        return element.search(/^ui_arg_\d+$/i) == 0;
+                    });
+                    if (arguments.length == arguments_length) {
+                        resolve();
+                    } else {
+                        reject("wrong arguments");
+                    }
+                });
             }).fail(function () {
                 reject("fail in search");
             });
