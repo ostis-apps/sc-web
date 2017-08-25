@@ -12,6 +12,9 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('ui_nrel_command_template'),
         this.resolveKeynode('question'),
 
+        this.resolveKeynode('ui_menu_view_full_semantic_neighborhood_in_the_agreed_part_of_kb'),
+        this.resolveKeynode('ui_menu_view_full_semantic_neighborhood'),
+
         this.resolveKeynode('nrel_system_identifier'),
         this.resolveKeynode('nrel_main_idtf'),
         this.resolveKeynode('nrel_idtf'),

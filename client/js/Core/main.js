@@ -7,8 +7,6 @@ SCWeb.core.Main = {
     window_types: [],
     idtf_modes: [],
     menu_commands: {},
-    default_cmd_str_no_authorized: "ui_menu_view_full_semantic_neighborhood_in_the_agreed_part_of_kb",
-    default_cmd_str_authorized: "ui_menu_view_full_semantic_neighborhood",
 
     /**
      * Initialize sc-web core and ui
@@ -170,31 +168,14 @@ SCWeb.core.Main = {
      * @param {Array} cmd_args Array of sc-addrs with command arguments
      */
     doDefaultCommand: function (cmd_args) {
-        if (!this.have_default_cmds_addr()) {
-            var self = this;
-            SCWeb.core.Server.resolveScAddr([this.default_cmd_str_no_authorized,
-                                             this.default_cmd_str_authorized], function (addrs) {
-                    self.default_cmd_no_authorized = addrs[self.default_cmd_str_no_authorized];
-                    self.default_cmd_authorized = addrs[self.default_cmd_str_authorized];
-                    if (self.have_default_cmds_addr()) {
-                        self.doCommand(self.default_cmd(), cmd_args);
-                    }
-                });
-        } else {
-            this.doCommand(this.default_cmd(), cmd_args);
-        }
-    },
-
-    have_default_cmds_addr: function () {
-        return this.default_cmd_no_authorized !== undefined &&
-            this.default_cmd_authorized !== undefined;
+        this.doCommand(this.default_cmd(), cmd_args);
     },
 
     default_cmd: function () {
         if (this.user.is_authenticated) {
-            return this.default_cmd_authorized;
+            return window.scKeynodes.ui_menu_view_full_semantic_neighborhood;
         } else {
-            return this.default_cmd_no_authorized;
+            return window.scKeynodes.ui_menu_view_full_semantic_neighborhood_in_the_agreed_part_of_kb;
         }
     }
 
