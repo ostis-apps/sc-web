@@ -135,7 +135,7 @@ function EekbPanel() {
                     }
                 };
             } else {
-                console.log("Command ${item.sc_addr} not have cmd_type");
+                console.log(`Command ${item.sc_addr} not have cmd_type`);
                 return {};
             }
         };
@@ -215,7 +215,7 @@ function EekbPanel() {
             }, 400, () => {
 
                 function rightClick(e) {
-                    const addr = $(this).context.activeElement.getAttribute('sc_addr');
+                    const addr = $(this).context.getAttribute('sc_addr');
                     if (addr) {
                         Arguments.appendArgument(addr);
                         e.preventDefault();
@@ -227,10 +227,10 @@ function EekbPanel() {
 
                 if ($menu.is(":visible")) {
                     context.hidden = true;
-                    $(document).bind('contextmenu.eekbPanel', selector, rightClick);
+                    $(document).on('contextmenu.eekbPanel', selector, rightClick);
                 } else {
                     context.hidden = false;
-                    $(document).unbind('contextmenu.eekbPanel');
+                    $(document).off('contextmenu.eekbPanel');
                 }
             });
         });
