@@ -14,7 +14,7 @@ describe("eekbLLogic", () => {
         eekbMenuPanel = new EekbPanel();
     });
 
-    describe('restore order of commands', function() {
+    describe('restore order of commands', function () {
         let testData = {
             'all nodes has nextCommand': {
                 commands: [{

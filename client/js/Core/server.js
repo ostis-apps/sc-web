@@ -143,31 +143,31 @@ SCWeb.core.Server = {
      */
     init: function (callback) {
         $.ajax({
-                url: '/api/user/',
-                data: null,
-                type: 'GET',
-                success: function(user) {
-                    window.scHelper.getMenuCommands(window.scKeynodes.ui_main_menu).done(function(menu_commands) {
-                        var data = {};
-                        data['menu_commands'] = menu_commands;
-                        data['user'] = user;
-                        
-                        window.scHelper.getLanguages().done(function(langs) {
-                            data['languages'] = langs;
-                            
-                            window.scHelper.getOutputLanguages().done(function(out_langs) {
-                                data['external_languages'] = out_langs;
+            url: '/api/user/',
+            data: null,
+            type: 'GET',
+            success: function (user) {
+                window.scHelper.getMenuCommands(window.scKeynodes.ui_main_menu).done(function (menu_commands) {
+                    var data = {};
+                    data['menu_commands'] = menu_commands;
+                    data['user'] = user;
 
-                                window.scHelper.getMenuCommands(window.scKeynodes.menu_eekb).done(function(menu_eekb) {
-                                    data['menu_eekb'] = menu_eekb;
+                    window.scHelper.getLanguages().done(function (langs) {
+                        data['languages'] = langs;
 
-                                    callback(data);
-                                });
+                        window.scHelper.getOutputLanguages().done(function (out_langs) {
+                            data['external_languages'] = out_langs;
+
+                            window.scHelper.getMenuCommands(window.scKeynodes.menu_eekb).done(function (menu_eekb) {
+                                data['menu_eekb'] = menu_eekb;
+
+                                callback(data);
                             });
                         });
                     });
-                }
-        });        
+                });
+            }
+        });
     },
 
     /*!
@@ -259,7 +259,7 @@ SCWeb.core.Server = {
         return new Promise((resolve, reject) => {
             window.sctpClient.iterate_constr(
                 SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   parseInt(cmd_addr),
+                    [parseInt(cmd_addr),
                         sc_type_arc_common | sc_type_const,
                         sc_type_node | sc_type_const | sc_type_node_struct,
                         sc_type_arc_pos_const_perm,
@@ -267,7 +267,7 @@ SCWeb.core.Server = {
                     ],
                     {"contour": 2}),
                 SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   window.scKeynodes.question,
+                    [window.scKeynodes.question,
                         sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
                         sc_type_node | sc_type_var,
                         sc_type_arc_pos_const_perm,
@@ -275,7 +275,7 @@ SCWeb.core.Server = {
                     ],
                     {"instance": 2}),
                 SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   "instance",
+                    ["instance",
                         sc_type_var,
                         sc_type_node | sc_type_const,
                         sc_type_arc_pos_const_perm,
