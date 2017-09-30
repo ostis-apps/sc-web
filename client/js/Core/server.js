@@ -9,13 +9,13 @@ SCWeb.core.Server = {
     _task_active_num: 0, // number of active tasks
     _task_max_active_num: 10, // maximum number of active tasks
     _task_timeout: 0, // timer id for tasks queue
-    _task_frequency: 100,   // task timer frequency
+    _task_frequency: 100, // task timer frequency
 
     _current_language: null,
     _identifiers_cache: null,
     _sys_identifiers_cache: null,
 
-    _initialize: function () {
+    _initialize: function() {
         var expire = 1000 * 60 * 5; // five minutes expire
         this._identifiers_cache = new AppCache({
             expire: expire,
@@ -27,7 +27,7 @@ SCWeb.core.Server = {
             max: 3000
         });
 
-        SCWeb.core.EventManager.subscribe("translation/changed_language", this, function (lang_addr) {
+        SCWeb.core.EventManager.subscribe("translation/changed_language", this, function(lang_addr) {
             SCWeb.core.Server._current_language = parseInt(lang_addr);
         });
     },
@@ -39,7 +39,7 @@ SCWeb.core.Server = {
      * - taskStarted - function that calls on new task started. No any arguments
      * - taskFinished - function that calls on new task finished. No any arguments
      */
-    appendListener: function (listener) {
+    appendListener: function(listener) {
         if (this._listeners.indexOf(listener) == -1) {
             this._listeners.push(listener);
         }
@@ -49,7 +49,7 @@ SCWeb.core.Server = {
      * Removes specified listener
      * @param {Object} listener Listener object to remove
      */
-    removeListener: function (listener) {
+    removeListener: function(listener) {
         var idx = this._listeners.indexOf(listener);
         if (idx >= 0) {
             this._listeners.splice(idx, 1);
@@ -59,7 +59,7 @@ SCWeb.core.Server = {
     /*!
      * Notify all registere listeners task started
      */
-    _fireTaskStarted: function () {
+    _fireTaskStarted: function() {
         for (var i = 0; i < this._listeners.length; ++i) {
             $.proxy(this._listeners[i].taskStarted(), this._listeners[i]);
         }
@@ -68,7 +68,7 @@ SCWeb.core.Server = {
     /*!
      * Notify all registered listeners on task finished
      */
-    _fireTaskFinished: function () {
+    _fireTaskFinished: function() {
         for (var i = 0; i < this._listeners.length; ++i) {
             $.proxy(this._listeners[i].taskFinished(), this._listeners[i]);
         }
@@ -84,13 +84,13 @@ SCWeb.core.Server = {
      * - success - Callback function to call on success
      * - error - Callback function to call on error
      */
-    _push_task: function (task) {
+    _push_task: function(task) {
         this._fireTaskStarted();
         this._task_queue.push(task);
 
         if (!this._task_timeout) {
             var self = this;
-            this._task_timeout = window.setInterval(function () {
+            this._task_timeout = window.setInterval(function() {
                 var tasks = self._pop_tasks();
 
                 for (idx in tasks) {
@@ -102,7 +102,7 @@ SCWeb.core.Server = {
                         type: task.type,
                         success: task.success,
                         error: task.error,
-                        complete: function () {
+                        complete: function() {
                             SCWeb.core.Server._fireTaskFinished();
                             self._task_active_num--;
                         }
@@ -118,7 +118,7 @@ SCWeb.core.Server = {
      * It returns just tasks, that can be processed for that moment.
      * Number of returned tasks is min(_task_max_active_num - _task_active_num, _task_queue.length)
      */
-    _pop_tasks: function () {
+    _pop_tasks: function() {
         var task_num = this._task_max_active_num - this._task_active_num;
         var res = [];
         for (var i = 0; i < Math.min(task_num, this._task_queue.length); ++i) {
@@ -141,24 +141,27 @@ SCWeb.core.Server = {
      * @param {Function} callback Calls on request finished successfully. This function
      * get recieved data from server as a parameter
      */
-    init: function (callback) {
+    init: function(callback) {
         $.ajax({
             url: '/api/user/',
             data: null,
             type: 'GET',
-            success: function (user) {
-                window.scHelper.getMenuCommands(window.scKeynodes.ui_main_menu).done(function (menu_commands) {
+            success: function(user) {
+                window.scHelper.getMenuCommands(window.scKeynodes.ui_main_menu).done(function(
+                    menu_commands) {
                     var data = {};
                     data['menu_commands'] = menu_commands;
                     data['user'] = user;
 
-                    window.scHelper.getLanguages().done(function (langs) {
+                    window.scHelper.getLanguages().done(function(langs) {
                         data['languages'] = langs;
 
-                        window.scHelper.getOutputLanguages().done(function (out_langs) {
+                        window.scHelper.getOutputLanguages().done(function(
+                            out_langs) {
                             data['external_languages'] = out_langs;
 
-                            window.scHelper.getMenuCommands(window.scKeynodes.menu_eekb).done(function (menu_eekb) {
+                            window.scHelper.getMenuCommands(window.scKeynodes
+                                .menu_eekb).done(function(menu_eekb) {
                                 data['menu_eekb'] = menu_eekb;
 
                                 callback(data);
@@ -175,7 +178,7 @@ SCWeb.core.Server = {
      * @param {Array} objects List of sc-addrs to resolve identifiers
      * @param {Function} callback
      */
-    resolveIdentifiers: function (objects, callback) {
+    resolveIdentifiers: function(objects, callback) {
 
         if (objects.length == 0) {
             callback({});
@@ -188,7 +191,8 @@ SCWeb.core.Server = {
             return self._current_language + '/' + addr;
         }
 
-        var result = {}, used = {};
+        var result = {},
+            used = {};
         var arguments = '';
         var idx = 1;
         for (i in objects) {
@@ -219,7 +223,7 @@ SCWeb.core.Server = {
                 type: "POST",
                 url: "api/idtf/resolve/",
                 data: arguments,
-                success: function (idtfs) {
+                success: function(idtfs) {
                     for (k in idtfs) {
                         if (idtfs.hasOwnProperty(k)) {
                             result[k] = idtfs[k];
@@ -228,14 +232,14 @@ SCWeb.core.Server = {
 
                     callback(result);
                 },
-                error: function () {
+                error: function() {
                     callback({});
                 }
             });
         }
     },
 
-    _makeArgumentsList: function (arguments_list) {
+    _makeArgumentsList: function(arguments_list) {
         var arguments = {};
         for (var i = 0; i < arguments_list.length; i++) {
             var arg = arguments_list[i];
@@ -244,7 +248,7 @@ SCWeb.core.Server = {
         return arguments;
     },
 
-    contextMenu: function (arguments_list, callback) {
+    contextMenu: function(arguments_list, callback) {
         var arguments = this._makeArgumentsList(arguments_list);
 
         this._push_task({
@@ -255,39 +259,38 @@ SCWeb.core.Server = {
         });
     },
 
-    checkCommandArgument: function (cmd_addr, arguments_length) {
+    checkCommandArgument: function(cmd_addr, arguments_length) {
         return new Promise((resolve, reject) => {
             window.sctpClient.iterate_constr(
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [parseInt(cmd_addr),
-                        sc_type_arc_common | sc_type_const,
-                        sc_type_node | sc_type_const | sc_type_node_struct,
-                        sc_type_arc_pos_const_perm,
-                        window.scKeynodes.ui_nrel_command_template
-                    ],
-                    {"contour": 2}),
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [window.scKeynodes.question,
-                        sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
-                        sc_type_node | sc_type_var,
-                        sc_type_arc_pos_const_perm,
-                        "contour"
-                    ],
-                    {"instance": 2}),
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    ["instance",
-                        sc_type_var,
-                        sc_type_node | sc_type_const,
-                        sc_type_arc_pos_const_perm,
-                        "contour"
-                    ])
-            ).done(function (results) {
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [parseInt(cmd_addr),
+                    sc_type_arc_common | sc_type_const,
+                    sc_type_node | sc_type_const | sc_type_node_struct,
+                    sc_type_arc_pos_const_perm,
+                    window.scKeynodes.ui_nrel_command_template
+                ], {
+                    "contour": 2
+                }),
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [window.scKeynodes.question,
+                    sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
+                    sc_type_node | sc_type_var,
+                    sc_type_arc_pos_const_perm,
+                    "contour"
+                ], {
+                    "instance": 2
+                }),
+                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, ["instance",
+                    sc_type_var,
+                    sc_type_node | sc_type_const,
+                    sc_type_arc_pos_const_perm,
+                    "contour"
+                ])
+            ).done(function(results) {
                 if (results.results.length == arguments_length) {
                     resolve();
                 } else {
                     reject("wrong arguments");
                 }
-            }).fail(function () {
+            }).fail(function() {
                 reject("fail in search");
             });
         });
@@ -299,7 +302,7 @@ SCWeb.core.Server = {
      * @param {arguments_list} List that contains sc-addrs of command arguments
      * @param {callback} Function, that will be called with recieved data
      */
-    doCommand: function (cmd_addr, arguments_list, callback) {
+    doCommand: function(cmd_addr, arguments_list, callback) {
 
         let length = arguments_list.length;
         var promise = this.checkCommandArgument(cmd_addr, length);
@@ -323,7 +326,7 @@ SCWeb.core.Server = {
      * @param {String} query Natural language query
      * @param {callback} Function, that will be called with recieved data
      */
-    textCommand: function (query, callback) {
+    textCommand: function(query, callback) {
 
         var arguments = {};
         arguments['query'] = query;
@@ -341,11 +344,14 @@ SCWeb.core.Server = {
      * @param {format_addr} sc-addr of format to translate answer
      * @param {callback} Function, that will be called with received data in specified format
      */
-    getAnswerTranslated: function (question_addr, format_addr, callback) {
+    getAnswerTranslated: function(question_addr, format_addr, callback) {
         this._push_task({
             type: "POST",
             url: "api/question/answer/translate/",
-            data: {"question": question_addr, "format": format_addr},
+            data: {
+                "question": question_addr,
+                "format": format_addr
+            },
             success: callback
         });
     },
@@ -357,8 +363,12 @@ SCWeb.core.Server = {
      * @param {callback} Callback function that calls, when sc-addrs resovled. It
      * takes object that contains map of resolved sc-addrs as parameter
      */
-    resolveScAddr: function (idtfList, callback) {
-        var self = this, arguments = '', need_resolve = [], result = {}, used = {};
+    resolveScAddr: function(idtfList, callback) {
+        var self = this,
+            arguments = '',
+            need_resolve = [],
+            result = {},
+            used = {};
 
         for (i = 0; i < idtfList.length; i++) {
             var arg = idtfList[i];
@@ -379,12 +389,12 @@ SCWeb.core.Server = {
         if (need_resolve.length == 0) {
             callback(result);
         } else {
-            (function (result, arguments, need_resolve, callback) {
+            (function(result, arguments, need_resolve, callback) {
                 self._push_task({
                     type: "POST",
                     url: "api/addr/resolve/",
                     data: arguments,
-                    success: function (addrs) {
+                    success: function(addrs) {
                         for (i in need_resolve) {
                             var key = need_resolve[i];
                             var addr = addrs[key];
@@ -407,7 +417,7 @@ SCWeb.core.Server = {
      * resolved sc-links format (key: sc-link addr, value: format addr).
      * @param {Function} error Callback function, that calls on error
      */
-    getLinksFormat: function (links, success, error) {
+    getLinksFormat: function(links, success, error) {
         var arguments = '';
         for (i = 0; i < links.length; i++) {
             var arg = links[i];
@@ -428,11 +438,13 @@ SCWeb.core.Server = {
      * @param {Function} callback Callback function, that recieve data.
      * @param {Function} error Callback function, that calls on error
      */
-    getLinkContent: function (addr, success, error) {
+    getLinkContent: function(addr, success, error) {
         this._push_task({
             url: "api/link/content/",
             type: "GET",
-            data: {"addr": addr},
+            data: {
+                "addr": addr
+            },
             success: success,
             error: error
         });
@@ -441,7 +453,7 @@ SCWeb.core.Server = {
     /**
      * Returns list of available natural languages
      */
-    getLanguages: function (callback) {
+    getLanguages: function(callback) {
         this._push_task({
             url: "api/languages/",
             type: "GET",
@@ -454,11 +466,13 @@ SCWeb.core.Server = {
      * Setup default natular language for user
      * @param {String} lang_addr sc-addr of new language to setup
      */
-    setLanguage: function (lang_addr, callback) {
+    setLanguage: function(lang_addr, callback) {
         this._push_task({
             url: "api/languages/set/",
             type: "POST",
-            data: {"lang_addr": lang_addr},
+            data: {
+                "lang_addr": lang_addr
+            },
             success: callback
         });
     },
@@ -467,11 +481,13 @@ SCWeb.core.Server = {
      * Request identifiers that contains specified substring
      * @param str Substring to find
      */
-    findIdentifiersSubStr: function (str, callback) {
+    findIdentifiersSubStr: function(str, callback) {
 
         $.ajax({
             url: "api/idtf/find/",
-            data: {"substr": str},
+            data: {
+                "substr": str
+            },
             type: "GET",
             success: callback
         });
@@ -480,7 +496,7 @@ SCWeb.core.Server = {
     /**
      * Request tooltip content for specified sc-elements
      */
-    getTooltips: function (addrs, success, error) {
+    getTooltips: function(addrs, success, error) {
         var arguments = '';
         for (i = 0; i < addrs.length; i++) {
             var arg = addrs[i];
@@ -496,5 +512,3 @@ SCWeb.core.Server = {
         });
     }
 };
-
-
