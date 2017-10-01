@@ -34,6 +34,7 @@ function restoreCommandsOrder(commands, namesMap) {
         commands.forEach(cmd => commandsMap[cmd.sc_addr] = cmd);
         return commandsMap;
     }
+
     let isScListConsistent = (scList) => {
         let numberWithoutNext = scList.reduce((number, tuple) =>
             tuple[1] ? number : number + 1, 0);
@@ -205,7 +206,7 @@ function EekbPanel() {
         let contextSwitcher = new ContextSwitcher("#context-switcher");
 
         let menuIsVisible = false;
-        $('#eekb_comand_btn').click(function() {
+        $('#eekb_comand_btn').click(function () {
             menuIsVisible = !menuIsVisible;
             $menu.css({
                 display: menuIsVisible
@@ -245,14 +246,14 @@ function EekbPanel() {
         }
 
         // register for translation updates
-        EventManager.subscribe("translation/get", this, function(objects) {
+        EventManager.subscribe("translation/get", this, function (objects) {
             var items = getObjectsToTranslate();
             for (var i in items) {
                 objects.push(items[i]);
             }
         });
 
-        EventManager.subscribe("translation/update", this, function(names) {
+        EventManager.subscribe("translation/update", this, function (names) {
             updateTranslation(names);
         });
 

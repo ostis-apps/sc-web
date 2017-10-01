@@ -69,7 +69,8 @@ ScHelper.prototype.getMenuCommands = function(menuAddr) {
         // there're no API message wich returns only sys-addr (resolveIdtf resolves sys-addr only if main is'not exists)
         return new Promise((resolve) => {
             //  SCWeb.core.Server.resolveIdentifiers(scAddrs, resolve);
-            resolve(scAddrs.map(window.scKeynodes.getSysIdtfByAddress.bind(window.scKeynodes)).filter(key => key));
+            resolve(scAddrs.map(window.scKeynodes.getSysIdtfByAddress.bind(window.scKeynodes)).filter(key =>
+                key));
         });
     }
 
@@ -171,7 +172,8 @@ ScHelper.prototype.getMenuCommands = function(menuAddr) {
             })));
         if (!childrenConstructs) return res;
 
-        let childCommandAdr = childrenConstructs.results.map((constr, index) => childrenConstructs.get(index, 'child'));
+        let childCommandAdr = childrenConstructs.results.map((constr, index) => childrenConstructs.get(index,
+            'child'));
         let childrenCommands = await Promise.all(childCommandAdr.map(parseCommand));
         res.childs = childrenCommands;
         return res;
@@ -224,13 +226,14 @@ ScHelper.prototype.getAnswer = function(question_addr) {
         }, 10000);
 
         _self.sctpClient.event_create(SctpEventType.SC_EVENT_ADD_OUTPUT_ARC, _question_addr, function(addr, arg) {
-            _self.checkEdge(window.scKeynodes.nrel_answer, sc_type_arc_pos_const_perm, arg).done(function() {
-                _self.sctpClient.get_arc(arg).done(function(res) {
-                    _dfd.resolve(res[1]);
-                }).fail(function() {
-                    _dfd.reject();
+            _self.checkEdge(window.scKeynodes.nrel_answer, sc_type_arc_pos_const_perm, arg).done(
+                function() {
+                    _self.sctpClient.get_arc(arg).done(function(res) {
+                        _dfd.resolve(res[1]);
+                    }).fail(function() {
+                        _dfd.reject();
+                    });
                 });
-            });
         }).done(function(res) {
             fn.event_id = res;
             _self.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [
@@ -362,4 +365,15 @@ ScHelper.prototype.getIdentifier = function(addr, lang) {
     });
 
     return dfd.promise();
+};
+
+ScHelper.prototype.setLinkFormat = function(addr, format) {
+    var self = this;
+    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, addr, format).done(function(arc_addr) {
+        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_format, arc_addr).fail(function () {
+            console.log("Fail in ScHelper.prototype.setLinkFormat create_arc(nrel_format, arc_addr)")
+        });
+    }).fail(function () {
+        console.log("Fail in SScHelper.prototype.setLinkFormat create_arc(addr, format)")
+    });
 };

@@ -47,6 +47,8 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('binary_int16'),
         this.resolveKeynode('binary_int32'),
         this.resolveKeynode('binary_int64'),
+        this.resolveKeynode('format_pdf'),
+        this.resolveKeynode('format_png'),
         this.resolveKeynode('format_html'),
         this.resolveKeynode('nrel_format'),
         this.resolveKeynode('nrel_command_order'),
@@ -57,8 +59,6 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('nrel_manager'),
         this.resolveKeynode('nrel_expert'),
         this.resolveKeynode('ui_user_command_with_context')
-
-
     ).done(function() {
         dfd.resolve();
     }).fail(function() {
