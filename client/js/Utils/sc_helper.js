@@ -109,7 +109,7 @@ ScHelper.prototype.getMenuCommands = function (menuAddr) {
             'is_cmd_with_context': await this.isCmdWithContext(cmd_addr)
         };
 
-        if (res.cmd_type !== 'cmd_noatom') return res;
+        if (res.cmd_type === 'cmd_atom') return res;
 
         // find command roles
         let rolesContr = await wrapPromise(this.sctpClient.iterate_constr(
