@@ -95,54 +95,53 @@ function EekbPanel() {
         };
     };
 
-    function _render(state) {
-        let menuData = state.menuData;
-        let namesMap = state.namesMap;
-        let user = state.user;
+    function _parseMenuItem(namesMap, user, item) {
+        //every time element builds, new array of commands ids collects
+        _items.push(item.sc_addr);
 
-        function _parseMenuItem(item) {
-            //every time element builds, new array of commands ids collects
-            _items.push(item.sc_addr);
-
-            let childs = [];
+        if (item.cmd_type === 'cmd_noatom') {
             if (item.childs) {
                 item.childs.forEach(item => _items.push(item.sc_addr));
-                childs = restoreCommandsOrder(item.childs, namesMap)
-                    .filter(_hasPermision(user))
-                    .filter(_hasAppropriateContext(state));
-                childs = childs
-                    .map(_parseMenuItem);
-            }
+                let children = restoreCommandsOrder(item.childs, namesMap)
+                  .filter(_hasPermision(user))
+                  .filter(_hasAppropriateContext(state));
+                children = children
+                  .map(_parseMenuItem.bind(null, namesMap, user))
+                  .filter(e => e); // remove nulls
+                if (children.length > 0){
+                    return {
+                        sc_addr: item.sc_addr,
+                        text: namesMap[item.sc_addr] || item.sc_addr,
+                        nodes: children,
+                        cmd_type: 'cmd_noatom',
+                        state: {
+                            expanded: false
+                        }
 
-            if (item.cmd_type === 'cmd_noatom') {
-                return {
-                    sc_addr: item.sc_addr,
-                    text: namesMap[item.sc_addr] || item.sc_addr,
-                    nodes: childs,
-                    cmd_type: 'cmd_noatom',
-                    state: {
-                        expanded: false
-                    }
-
-                };
-            } else if (item.cmd_type === 'cmd_atom') {
-                return {
-                    sc_addr: item.sc_addr,
-                    text: namesMap[item.sc_addr] || item.sc_addr,
-                    cmd_type: 'cmd_atom',
-                    icon: "no_children",
-                    state: {
-                        expanded: false
-                    }
-                };
-            } else {
-                console.log(`Command ${item.sc_addr} not have cmd_type`);
-                return {};
+                    };
+                }
             }
-        };
-        namesMap = namesMap || {};
+        } else if (item.cmd_type === 'cmd_atom') {
+            return {
+                sc_addr: item.sc_addr,
+                text: namesMap[item.sc_addr] || item.sc_addr,
+                cmd_type: 'cmd_atom',
+                icon: "no_children",
+                state: {
+                    expanded: false
+                }
+            };
+        } else {
+            console.log(`Command ${item.sc_addr} not have cmd_type`);
+            return null;
+        }
+    }
+    function _render(state) {
+        let menuData = state.menuData;
+        let namesMap = state.namesMap || {};
+        let user = state.user;
         _items = [];
-        let a = _parseMenuItem(menuData);
+        let a = _parseMenuItem(namesMap, user, menuData);
         return a.nodes;
     }
 
@@ -202,7 +201,7 @@ function EekbPanel() {
         expandedNodes.forEach((node) => treeViewNode.treeview('expandNode', [node.nodeId]));
     }
 
-    let init = function init(params) {
+    let init = (params) => {
         menu_container_eekb_id = '#' + params.menu_container_eekb_id;
         let $menu = $("#menu_container_eekb");
         $menu.html(`<div id="context-switcher"></div>
@@ -286,7 +285,7 @@ function EekbPanel() {
         });
 
         return jQuery.when();
-    }.bind(this);
+    };
 
     eekbMenuInstance = {
         init: init,
