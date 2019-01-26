@@ -72,7 +72,7 @@ function EekbPanel() {
     let state = {};
     let _items = [];
     let menu_container_eekb_id;
-    let treeView;
+    let treeViewNode;
 
     let _hasPermision = (user) => (command) => {
         if (!command.roles) return true;
@@ -159,6 +159,32 @@ function EekbPanel() {
         });
     }
 
+    function initTreeView() {
+        treeViewNode.treeview({
+            data: {},
+            onNodeSelected: clickOnNode
+        });
+    }
+
+    let clickOnNode = (event, data) => {
+        var sc_addr = data.sc_addr;
+        if (sc_addr && data.cmd_type === 'cmd_atom') {
+            if (data.sc_addr) {
+                Main.doCommand(sc_addr, Arguments._arguments);
+            } else {
+                if ($(this).hasClass('menu-cmd-keynode')) {
+                    Main.doDefaultCommand([sc_addr]);
+                }
+            }
+        }
+        let treeView = treeViewNode.treeview(true);
+        treeView.unselectNode(data.nodeId, {
+            silent: true
+        });
+        treeView.toggleNodeExpanded(data.nodeId, {
+            silent: true
+        });
+    };
 
     function setState(newState) {
         state = newState;
@@ -166,31 +192,9 @@ function EekbPanel() {
         panel = state;
 
         let render = _render(state);
-        let treeViewNode = $('#menu_container_eekb #tree-view');
         let expandedNodes = treeViewNode.treeview('getExpanded');
-        //plugin is not initialized
         if (expandedNodes.selector) expandedNodes = [];
         treeViewNode.treeview('remove');
-        let clickOnNode = (event, data) => {
-            var sc_addr = data.sc_addr;
-            if (sc_addr && data.cmd_type === 'cmd_atom') {
-                if (data.sc_addr) {
-                    Main.doCommand(sc_addr, Arguments._arguments);
-                } else {
-                    if ($(this).hasClass('menu-cmd-keynode')) {
-                        Main.doDefaultCommand([sc_addr]);
-                    }
-                }
-            }
-            // it's caused by fucking changing state of third-party plugin
-            let treeView = treeViewNode.treeview(true);
-            treeView.unselectNode(data.nodeId, {
-                silent: true
-            });
-            treeView.toggleNodeExpanded(data.nodeId, {
-                silent: true
-            });
-        };
         treeViewNode.treeview({
             data: render,
             onNodeSelected: clickOnNode
@@ -203,6 +207,7 @@ function EekbPanel() {
         let $menu = $("#menu_container_eekb");
         $menu.html(`<div id="context-switcher"></div>
                     <div id="tree-view"></div>`);
+        treeViewNode = $('#menu_container_eekb #tree-view');
         let contextSwitcher = new ContextSwitcher("#context-switcher");
 
         let menuIsVisible = false;
@@ -267,6 +272,7 @@ function EekbPanel() {
         });
 
         logConstants.UPDATE_EEKB_ENTRY_STATE('init');
+        initTreeView();
         setState({
             menuData: params.menu_eekb,
             namesMap: {},
