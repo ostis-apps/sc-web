@@ -142,7 +142,7 @@ function EekbPanel() {
         let user = state.user;
         _items = [];
         let a = _parseMenuItem(namesMap, user, menuData);
-        return a.nodes;
+        return a ? a.nodes : [];
     }
 
     function getObjectsToTranslate() {
