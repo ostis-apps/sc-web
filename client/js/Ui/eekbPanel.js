@@ -185,6 +185,12 @@ function EekbPanel() {
         });
     };
 
+    let removeIndentation = (event, node) => {
+        // wait until bootstrap-treeview will create indentation nodes to remove
+        // them
+        setTimeout(() => treeViewNode.find(".node-icon.no_children").prevAll().remove(),10);
+    };
+
     function setState(newState) {
         state = newState;
 
@@ -196,7 +202,9 @@ function EekbPanel() {
         treeViewNode.treeview('remove');
         treeViewNode.treeview({
             data: render,
-            onNodeSelected: clickOnNode
+            onNodeSelected: clickOnNode,
+            onNodeExpanded: removeIndentation,
+            onNodeCollapsed: removeIndentation
         });
         expandedNodes.forEach((node) => treeViewNode.treeview('expandNode', [node.nodeId]));
     }
