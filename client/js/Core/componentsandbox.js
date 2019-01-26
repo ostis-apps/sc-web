@@ -131,6 +131,10 @@ SCWeb.core.ComponentSandbox.prototype.getCurrentLanguage = function () {
     return SCWeb.core.Translation.getCurrentLanguage();
 };
 
+SCWeb.core.ComponentSandbox.prototype.getLanguages = function () {
+    return SCWeb.core.Translation.getLanguages();
+};
+
 /*!
  * @param {Array} args Array of sc-addrs of commnad arguments.
  */
@@ -356,26 +360,14 @@ SCWeb.core.ComponentSandbox.prototype.onWindowActiveChanged = function (is_activ
 
 // --------- Data -------------
 SCWeb.core.ComponentSandbox.prototype.onDataAppend = function (data) {
-    var dfd = new jQuery.Deferred();
-
     if (this.eventDataAppend) {
-        var self = this;
-        $.when(this.eventDataAppend(data)).then(
-            function () {
-                $.when(SCWeb.core.Translation.translate(self.getObjectsToTranslate())).done(
-                    function (namesMap) {
-                        self.updateTranslation(namesMap);
-                        dfd.resolve();
-                    });
-                //dfd.resolve();
-            },
-            function () {
-                dfd.reject();
-            });
-
+        return $.when(this.eventDataAppend(data)).done(() => this.translate());
     } else {
-        dfd.resolve();
+        return $.Deferred().resolve().promise()
     }
+};
 
-    return dfd.promise();
+SCWeb.core.ComponentSandbox.prototype.translate = function () {
+    return SCWeb.core.Translation.translate(this.getObjectsToTranslate())
+        .done((namesMap) => this.updateTranslation(namesMap));
 };

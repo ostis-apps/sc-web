@@ -161,12 +161,11 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
                 
         print self.request.uri
 
-        uri = 'http://' + tornado.options.options.host 
-        uri += ':' 
+        uri = 'http://' + tornado.options.options.host
+        uri += ':'
         uri += str(tornado.options.options.auth_redirect_port)
         uri += '/auth/google'
 
-        
         if self.get_argument('code', False):
             user = yield self.get_authenticated_user(
                 redirect_uri = uri,
@@ -187,6 +186,7 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
             user = json.loads(response.body)           
             
             self._loggedin(user)
+            
             self.redirect('/')
             
         else:

@@ -109,7 +109,7 @@ SCWeb.ui.Core = {
         return dfd.promise();
     },
 
-    /*! Returns selector to select all elements, that has sc_addr in specified window, excluding all 
+    /*! Returns selector to select all elements, that has sc_addr in specified window, excluding all
      * sc_addr elements in child windows
      */
     selectorWindowScAddr: function(windowId) {

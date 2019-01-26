@@ -14,36 +14,38 @@ module.exports = function(grunt) {
         concat: {
             webcore: {
                 src: [webCoreCompPath + 'Utils/sc_keynodes.js',
-                    webCoreCompPath + 'Utils/utils.js',
-                    webCoreCompPath + 'Utils/sc_helper.js',
-                    webCoreCompPath + 'Utils/stringview.js',
-                    webCoreCompPath + 'Utils/cache.js',
-                    webCoreCompPath + 'Utils/sctp.js',
-                    webCoreCompPath + 'Utils/fqueue.js',
-                    webCoreCompPath + 'Utils/binary.js',
-                    webCoreCompPath + 'Utils/triples.js',
-                    webCoreCompPath + 'Utils/sc_link_helper.js',
-                    webCoreCompPath + 'Core/namespace.js',
-                    webCoreCompPath + 'Core/debug.js',
-                    webCoreCompPath + 'Core/main.js',
-                    webCoreCompPath + 'Core/server.js',
-                    webCoreCompPath + 'Core/arguments.js',
-                    webCoreCompPath + 'Core/componentsandbox.js',
-                    webCoreCompPath + 'Core/translation.js',
-                    webCoreCompPath + 'Core/componentmanger.js',
-                    webCoreCompPath + 'Core/eventmanager.js',
-                    webCoreCompPath + 'Ui/namespace.js',
-                    webCoreCompPath + 'Ui/menu.js',
-                    webCoreCompPath + 'Ui/langpanel.js',
-                    webCoreCompPath + 'Ui/locker.js',
-                    webCoreCompPath + 'Ui/core.js',
-                    webCoreCompPath + 'Ui/searchpanel.js',
-                    webCoreCompPath + 'Ui/KeyboardHandler.js',
-                    webCoreCompPath + 'Ui/taskpanel.js',
-                    webCoreCompPath + 'Ui/argumentspanel.js',
-                    webCoreCompPath + 'Ui/windowmanager.js',
-                    webCoreCompPath + 'Ui/OpenComponentHandler.js',
-                    webCoreCompPath + 'Ui/userpanel.js'
+                      webCoreCompPath + 'Utils/utils.js',
+                      webCoreCompPath + 'Utils/sc_helper.js',
+                      webCoreCompPath + 'Utils/stringview.js',
+                      webCoreCompPath + 'Utils/cache.js',
+                      webCoreCompPath + 'Utils/sctp.js',
+                      webCoreCompPath + 'Utils/fqueue.js',
+                      webCoreCompPath + 'Utils/binary.js',
+                      webCoreCompPath + 'Utils/triples.js',
+                      webCoreCompPath + 'Utils/sc_link_helper.js',
+                      webCoreCompPath + 'Core/namespace.js',
+                      webCoreCompPath + 'Core/debug.js',
+                      webCoreCompPath + 'Core/main.js',
+                      webCoreCompPath + 'Core/server.js',
+                      webCoreCompPath + 'Core/arguments.js',
+                      webCoreCompPath + 'Core/componentsandbox.js',
+                      webCoreCompPath + 'Core/translation.js',
+                      webCoreCompPath + 'Core/componentmanger.js',
+                      webCoreCompPath + 'Core/eventmanager.js',
+                      webCoreCompPath + 'Ui/namespace.js',
+                      webCoreCompPath + 'Ui/menu.js',
+                      webCoreCompPath + 'Ui/langpanel.js',
+                      webCoreCompPath + 'Ui/locker.js',
+                      webCoreCompPath + 'Ui/core.js',
+                      webCoreCompPath + 'Ui/searchpanel.js',
+                      webCoreCompPath + 'Ui/KeyboardHandler.js',
+                      webCoreCompPath + 'Ui/taskpanel.js',
+                      webCoreCompPath + 'Ui/argumentspanel.js',
+                      webCoreCompPath + 'Ui/windowmanager.js',
+                      webCoreCompPath + 'Ui/OpenComponentHandler.js',
+                      webCoreCompPath + 'Ui/userpanel.js',
+                      webCoreCompPath + 'Ui/expertmodepanel.js',
+                      webCoreCompPath + 'Ui/ExpertModeHandler.js',
                 ],
                 dest: clientJsDirPath + 'sc-web-core.js',
             },
@@ -57,60 +59,53 @@ module.exports = function(grunt) {
             },
             scg: {
                 src: [
-                    scgDirPath + '/src/gwf-file-creater.js',
-                    scgDirPath + '/src/gwf-file-loader.js',
-                    scgDirPath + '/src/gwf-model-objects.js',
-                    scgDirPath + '/src/gwf-object-info-reader.js',
-                    scgDirPath + '/src/scg-object-builder.js',
-                    scgDirPath + '/src/scg.js',
-                    scgDirPath + '/src/scg-debug.js',
-                    scgDirPath + '/src/scg-math.js',
-                    scgDirPath + '/src/scg-model-objects.js',
-                    scgDirPath + '/src/scg-alphabet.js',
-                    scgDirPath + '/src/scg-render.js',
-                    scgDirPath + '/src/scg-scene.js',
-                    scgDirPath + '/src/scg-layout.js',
-                    scgDirPath + '/src/scg-tree.js',
-                    scgDirPath + '/src/scg-struct.js',
-                    scgDirPath + '/src/scg-object-creator.js',
-                    scgDirPath + '/src/scg-component.js',
-                    scgDirPath + '/src/listener/*.js',
-                    scgDirPath + '/src/command/append-object.js',
-                    scgDirPath + '/src/command/command-manager.js',
-                    scgDirPath + '/src/command/create-node.js',
-                    scgDirPath + '/src/command/create-edge.js',
-                    scgDirPath + '/src/command/create-bus.js',
-                    scgDirPath + '/src/command/create-contour.js',
-                    scgDirPath + '/src/command/create-link.js',
-                    scgDirPath + '/src/command/change-idtf.js',
-                    scgDirPath + '/src/command/change-content.js',
-                    scgDirPath + '/src/command/change-type.js',
-                    scgDirPath + '/src/command/delete-objects.js',
-                    scgDirPath + '/src/command/move-object.js',
-                    scgDirPath + '/src/command/move-line-point.js',
-                    scgDirPath + '/src/command/get-node-from-memory.js',
-                    scgDirPath + '/src/command/wrapper-command.js'
-                ],
+                      scgDirPath + '/src/gwf-file-creater.js',
+                      scgDirPath + '/src/gwf-file-loader.js',
+                      scgDirPath + '/src/gwf-model-objects.js',
+                      scgDirPath + '/src/gwf-object-info-reader.js',
+                      scgDirPath + '/src/scg-object-builder.js',
+                      scgDirPath + '/src/scg.js',
+                      scgDirPath + '/src/scg-debug.js',
+                      scgDirPath + '/src/scg-math.js',
+                      scgDirPath + '/src/scg-model-objects.js',
+                      scgDirPath + '/src/scg-alphabet.js',
+                      scgDirPath + '/src/scg-render.js',
+                      scgDirPath + '/src/scg-scene.js',
+                      scgDirPath + '/src/scg-layout.js',
+                      scgDirPath + '/src/scg-tree.js',
+                      scgDirPath + '/src/scg-struct.js',
+                      scgDirPath + '/src/scg-object-creator.js',
+                      scgDirPath + '/src/scg-component.js',
+                      scgDirPath + '/src/listener/*.js',
+                      scgDirPath + '/src/command/append-object.js',
+                      scgDirPath + '/src/command/command-manager.js',
+                      scgDirPath + '/src/command/create-node.js',
+                      scgDirPath + '/src/command/create-edge.js',
+                      scgDirPath + '/src/command/create-bus.js',
+                      scgDirPath + '/src/command/create-contour.js',
+                      scgDirPath + '/src/command/create-link.js',
+                      scgDirPath + '/src/command/change-idtf.js',
+                      scgDirPath + '/src/command/change-content.js',
+                      scgDirPath + '/src/command/change-type.js',
+                      scgDirPath + '/src/command/delete-objects.js',
+                      scgDirPath + '/src/command/move-object.js',
+                      scgDirPath + '/src/command/move-line-point.js',
+                      scgDirPath + '/src/command/get-node-from-memory.js',
+                      scgDirPath + '/src/command/wrapper-command.js'],
                 dest: scgDirPath + 'static/components/js/scg/scg.js'
             },
             scs: {
                 src: [scsDirPath + 'src/scs.js',
-                    scsDirPath + 'src/scs-viewer.js',
-                    scsDirPath + 'src/scs-output.js',
-                    scsDirPath + 'src/scs-types.js',
-                    scsDirPath + 'src/scn-output.js',
-                    scsDirPath + 'src/scn-tree.js',
-                    scsDirPath + 'src/scn-highlighter.js',
-                    scsDirPath + 'src/scs-component.js'
-                ],
+                      scsDirPath + 'src/scs-viewer.js',
+                      scsDirPath + 'src/scs-output.js',
+                      scsDirPath + 'src/scs-types.js',
+                      scsDirPath + 'src/scn-output.js',
+                      scsDirPath + 'src/scn-tree.js',
+                      scsDirPath + 'src/scn-highlighter.js',
+                      scsDirPath + 'src/scs-expert-mode.js',
+                      scsDirPath + 'src/scs-component.js'],
                 dest: scsDirPath + 'static/components/js/scs/scs.js'
             },
-            bundle: {
-                src: ["build/concat.js",
-                    "build/eekbPanel.bundle.js"
-                ],
-                dest: clientJsDirPath + 'sc-web-core.js'
-            }
         },
         copy: {
             githubJs: {
@@ -248,23 +243,13 @@ module.exports = function(grunt) {
                 tasks: ['copy:scgImg', 'copy:scgImgAlphabet'],
             },
         },
-        exec: {
-            webpack: {
-                command: "node ./node_modules/webpack/bin/webpack.js"
-            },
-            "dev-html": {
-                command: "node modules/create-html.js dev client/templates/components.html"
-            }
-        }
     });
-
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-exec');
 
-    grunt.registerTask('default', ['build', 'watch']);
-    grunt.registerTask('build', ['concat', 'copy', 'concat:bundle', "exec:dev-html"]);
+    grunt.registerTask('default', ['concat', 'copy', 'watch']);
+    grunt.registerTask('build', ['concat', 'copy']);
 
 };

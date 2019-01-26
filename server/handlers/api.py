@@ -500,6 +500,7 @@ class User(base.BaseHandler):
         with SctpClientInstance() as sctp_client:
             keys = Keynodes(sctp_client)
 
+            # get user sc-addr
             sc_session = logic.ScSession(self, sctp_client, keys)
             user_addr = sc_session.get_sc_addr()
             if sc_session.email:

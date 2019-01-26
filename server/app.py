@@ -48,8 +48,8 @@ def main():
     tornado.options.define("redis_db_user", default = 1, help = "number of redis database to store user info", type = int)
     tornado.options.define("host", default = "localhost", help = "host name", type = str)
     tornado.options.define("port", default = 8000, help = "host port", type = int)
-    tornado.options.define("auth_redirect_port", default = 8000, help = "host port", type = int)
-    
+    tornado.options.define("auth_redirect_port", default = 80, help = "host port", type = int)
+
     tornado.options.define("google_client_id", default = "", help = "client id for google auth", type = str)
     tornado.options.define("google_client_secret", default = "", help = "client secret for google auth", type = str)
     
@@ -60,10 +60,7 @@ def main():
     tornado.options.define("super_emails", default = "", help = "email of site super administrator (maximum rights)", type = list)
     tornado.options.define("db_path", default = "data.db", help = "path to database file", type = str)
     
-    tornado.options.define("cfg", default = "server.conf", help = "path to configuration fnile", type = str)
-
-    tornado.options.define("google_client_id", default = "986376202749-akck61qae90td3spb1kdmca0s30qaamo.apps.googleusercontent.com", help = "client id for google auth", type = str)
-    tornado.options.define("google_client_secret", default = "C77LN8V5Xsv7R3JghVXf_tzq", help = "client secret for google auth", type = str)
+    tornado.options.define("cfg", default = "server.conf", help = "path to configuration file", type = str)
 
     tornado.options.parse_command_line()
 
@@ -81,7 +78,6 @@ def main():
             (r"/", MainHandler),
 
             (r"/static/(.*)", NoCacheStaticHandler, {"path": tornado.options.options.static_path}),
-            (r'/client/(.*)', NoCacheStaticHandler, {'path': '../client'}),
 
             # api
             (r"/api/init/", api.Init),

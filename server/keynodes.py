@@ -56,7 +56,6 @@ class KeynodeSysIdentifiers:
     nrel_administrator = 'nrel_administrator'
     nrel_manager = 'nrel_manager'
     nrel_expert = 'nrel_expert'
-
     rrel_key_sc_element = 'rrel_key_sc_element'
     sc_definition = 'sc_definition'
     sc_explanation = 'sc_explanation'
@@ -119,4 +118,3 @@ class KeynodeSysIdentifiers:
     system_element = 'system_element'
 
     Myself = 'Myself'
-    
