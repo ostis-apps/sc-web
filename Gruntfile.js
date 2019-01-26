@@ -23,6 +23,7 @@ module.exports = function(grunt) {
                       webCoreCompPath + 'Utils/binary.js',
                       webCoreCompPath + 'Utils/triples.js',
                       webCoreCompPath + 'Utils/sc_link_helper.js',
+                      webCoreCompPath + 'Utils/logUtils.js',
                       webCoreCompPath + 'Core/namespace.js',
                       webCoreCompPath + 'Core/debug.js',
                       webCoreCompPath + 'Core/main.js',
@@ -46,6 +47,8 @@ module.exports = function(grunt) {
                       webCoreCompPath + 'Ui/userpanel.js',
                       webCoreCompPath + 'Ui/expertmodepanel.js',
                       webCoreCompPath + 'Ui/ExpertModeHandler.js',
+                      webCoreCompPath + 'Ui/eekbPanel.js',
+                      webCoreCompPath + 'Ui/ContextSwitcher.js',
                 ],
                 dest: clientJsDirPath + 'sc-web-core.js',
             },
@@ -191,6 +194,12 @@ module.exports = function(grunt) {
                 dest: clientImgDirPath + 'scg/alphabet',
                 expand: true,
                 flatten: true
+            },
+            bootstrap_tree_view: {
+              expand: true,
+              cwd: "./node_modules",
+              src: ["./bootstrap-treeview/dist/*"],
+              dest: "./client/static/common/"
             }
         },
         watch: {
