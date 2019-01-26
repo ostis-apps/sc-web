@@ -139,6 +139,13 @@ module.exports = function(grunt) {
                 expand: true,
                 flatten: true
             },
+            coreCss: {
+              cwd: './client/css/',
+              src: 'core.css',
+              dest: clientCssDirPath,
+              expand: true,
+              flatten: true
+            },
             githubCss: {
                 cwd: githubDirPath + 'static/components/css/',
                 src: 'github.css',
