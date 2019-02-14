@@ -387,116 +387,69 @@ SctpClient.prototype.connect = function (url, success) {
 
 };
 
-SctpClient.prototype._send_sctp_command = function (buffer, success, fail) {
-  console.debug('request', buffer.getId(), buffer.getCmd().toString(16), buffer.getFlags(),  buffer.getSize());
-  this.currentlyExecutingCommands[buffer.getId()] = {success, fail};
+SctpClient.prototype._send_sctp_command = function (buffer, callback) {
+  console.debug('request', buffer.getId(), buffer.getCmd().toString(16), buffer.getFlags(), buffer.getSize());
+  this.currentlyExecutingCommands[buffer.getId()] = callback;
   this.socket.send(buffer.data);
 };
 
 SctpClient.prototype._handle_response_to_command = function (e) {
   let response = new SctpResultBuffer(new DataView(e.data));
-  let callbacks = this.currentlyExecutingCommands[response.getId()];
+  let callback = this.currentlyExecutingCommands[response.getId()];
+  delete this.currentlyExecutingCommands[response.getId()];
   console.debug(
     'response',
     response.getId(),
     response.getCmd().toString(16),
     response.getResultCode(),
     response.getResultSize());
-  if (!callbacks) {
+  if (!callback) {
     console.error("No hadler for command",
       response.getCmd(),
       response.getId(),
       response.getResultCode(),
       response.getResultSize());
   }
-  if (response.getResultCode() === SctpResultCode.SCTP_RESULT_OK) {
-    callbacks.success(response);
-  } else {
-    callbacks.fail(response);
-  }
-
+  callback(response);
 };
 
 SctpClient.prototype._process_request = function (buffer, parse) {
-  let promise = new Promise((success, fail) => {
-    this._send_sctp_command(buffer, success, fail)
+  let promise = new Promise((done) => {
+    this._send_sctp_command(buffer, done);
   });
   return promise;
 };
 
-SctpClient.prototype._push_task = function (task) {
-  this.task_queue.push(task);
-  var self = this;
-
-  function process() {
-    var t = self.task_queue.shift();
-
-    self.socket.onmessage = function (e) {
-
-      var result = new SctpResultBuffer(new DataView(e.data));
-      let response = result
-      console.debug(
-        'response',
-        response.getId(),
-        response.getCmd().toString(16),
-        response.getResultCode(),
-        response.getResultSize());
-      if (result.getResultSize() != e.data.byteLength - result.getHeaderSize())
-        throw "Invalid data size " + l;
-
-      var r = result;
-      var resCode = result.getResultCode();
-      if (e && e.data && resCode == SctpResultCode.SCTP_RESULT_OK) {
-        if (t.parse)
-          r = t.parse(result);
-        if (t.resCode)
-          resCode = t.resCode(result);
-      }
-
-      if (resCode == SctpResultCode.SCTP_RESULT_OK) {
-        t.dfd.resolve(r);
-      } else
-        t.dfd.reject();
-
-      if (self.task_queue.length > 0)
-        self.task_timeout = window.setTimeout(process, this.task_frequency);
-      else {
-        window.clearTimeout(self.task_timeout);
-        self.task_timeout = 0;
-      }
-    };
-
-    let buffer = t.buffer;
-    console.debug('request', buffer.getId(), buffer.getCmd().toString(16), buffer.getFlags(),  buffer.getSize());
-    self.socket.send(t.message);
-  }
-
-  if (!this.task_timeout && this.task_queue.length > 0) {
-    this.task_timeout = window.setTimeout(process, this.task_frequency)
+SctpClient.prototype._handle_request = function (resultBuffer, parse) {
+  if (resultBuffer.getResultCode() === SctpResultCode.SCTP_RESULT_OK) {
+    if (parse) {
+      return parsed_result = parse(resultBuffer);
+    } else {
+      return resultBuffer;
+    }
+  } else {
+    throw new Error(["failed command",
+      resultBuffer.getId(),
+      resultBuffer.getCmd().toString(16),
+      resultBuffer.getResultCode(),
+      resultBuffer.getResultSize(),
+      resultBuffer].join(" "));
   }
 };
 
 SctpClient.prototype.new_request = function (buffer, message, parse, resCode) {
   var dfd = new jQuery.Deferred();
-  this._push_task({
-    buffer,
-    message,
-    parse,
-    resCode,
-    dfd: dfd
-  });
+  this._process_request(buffer, parse)
+    .then((buffer) => {
+      try {
+        dfd.resolve(this._handle_request(buffer, parse));
+      } catch (e) {
+        if (e.message.indexOf("failed command") !== -1) {
+          dfd.reject(e);
+        }
+      }
+    });
   return dfd.promise();
-  // var dfd = new jQuery.Deferred();
-  // this._process_request(buffer, parse)
-  //   .then((buffer) => {
-  //     if (parse) {
-  //       let parsed_result = parse(buffer);
-  //       dfd.resolve(parsed_result);
-  //     }else {
-  //       dfd.resolve(buffer);
-  //     }
-  //   }, dfd.reject.bind(dfd));
-  // return dfd.promise();
 };
 
 SctpClient.prototype.erase_element = function (addr) {
@@ -726,31 +679,32 @@ SctpClient.prototype.iterate_elements = function (iterator_type, args) {
     }
     return res;
   })
-    .then(element_tuples => element_tuples.length === 0 ? dfd.reject() : dfd.resolve(element_tuples));
+    .done(element_tuples => element_tuples.length === 0 ? dfd.reject() : dfd.resolve(element_tuples))
+    .fail(dfd.reject.bind(dfd));
   return dfd.promise();
 };
 
 /* You can use that function to iterate advanced constructions
  * @param iterators Array of iterators description, that would be processed by order.
- * Each iterator description consist of iterator type, arguments and result mapping object 
+ * Each iterator description consist of iterator type, arguments and result mapping object
  * (use function SctpConstrIter to create it)
  * - iterator type - that just one of a value from SctpIteratorType
  * - arguments - array of arguments. Number of arguments depends on iterator_type (3 or 5).
  *   For assign argument of iterator (letter 'a' in iterator type name) you need to pass
  *   type of sc-element (combination of sc_type_... defines) or 0 (any type).
- *   For fixed arguments of iterator (letter 'f' in iterator type name) you need to pass one 
+ *   For fixed arguments of iterator (letter 'f' in iterator type name) you need to pass one
  *   of two values:
  *   - sc-addr - sc-addr of specified sc-element
  *   - string - name of result from any previous iterator.
  * - mappings - object that maps iterator result to string name. Where keys - are assigned names to iterator results,
  *   and values - are iterator value index (in range [0; k), where k - number of arguments). All mapping
  *   names must to be unique (don't use equal name in different iterators)
- * 
+ *
  * @returns If there are no any errors, then function returns promise object. Returned prmise object
  * rejcets on request fail. If request processed, then returned promise object resolves with,
- * object as argument. The last one has property results - plain array of results. Each item of that 
+ * object as argument. The last one has property results - plain array of results. Each item of that
  * array is an array of found sc-addrs (result of concatenation of all iterators results in the same order).
- * Also that object contains method get, that recieve index of result and the name as argument, 
+ * Also that object contains method get, that recieve index of result and the name as argument,
  * and returns sc-addr by name specified in result mappings for the result with specified index.
  */
 SctpClient.prototype.iterate_constr = function () {
