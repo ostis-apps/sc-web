@@ -46,8 +46,8 @@ var scgViewerWindow = function (sandbox) {
             sandbox: sandbox,
             containerId: sandbox.container,
             autocompletionVariants: autocompletionVariants,
-            translateToSc: function (scene, callback) {
-                return self.scStructTranslator.translateToSc(callback);
+            translateToSc: function (scene, callback, createUserDraft) {
+                return self.scStructTranslator.translateToSc(callback, createUserDraft);
             },
             canEdit: this.sandbox.canEdit(),
             resolveControls: this.sandbox.resolveElementsAddr,

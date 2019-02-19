@@ -193,7 +193,7 @@ function scgScStructTranslator(_editor, _sandbox) {
             scgFromSc.update(added, element, arc);
         },
 
-        translateToSc: function (callback) {
+        translateToSc: function(callback, createUserContour) {
             if (!sandbox.is_struct)
                 throw "Invalid state. Trying translate sc-link into sc-memory";
 
@@ -204,6 +204,7 @@ function scgScStructTranslator(_editor, _sandbox) {
             var links = editor.scene.links.slice();
             var buses = editor.scene.buses.slice();
             var objects = [];
+			var userContours = [];
 
 
             var appendObjects = function () {
@@ -473,13 +474,65 @@ function scgScStructTranslator(_editor, _sandbox) {
                 return dfdLinks.promise();
             }
 
+            var createUserDraftContour = function () {
+				var userScAddr = $("#auth-user-name").attr("sc_addr");
+				if (createUserContour && userScAddr) {
+					var dfd = new jQuery.Deferred();
+					// create user draft contour
+					var scDraftGen = function () {
+						var dfd = new jQuery.Deferred();
+						SCWeb.core.Server.resolveScAddr(['draft','nrel_authors'], function (addrs) {
+							var draftScAddr = addrs['draft'];
+							var authorsScAddr = addrs['nrel_authors'];
+							// create contour node
+							window.sctpClient.create_node(sc_type_const | sc_type_node |
+								sc_type_node_struct).done(function (node) {
+								userContours[userScAddr] = node;
+								// put contour node into draft set
+								window.sctpClient.create_arc(sc_type_arc_pos_const_perm, draftScAddr,
+									node).done(function () {
+									// create nrel_authors relation between user draft contour and user
+									window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, node, userScAddr).done(function (arc_addr) {
+										window.sctpClient.create_arc(sc_type_arc_pos_const_perm, authorsScAddr, arc_addr).done(function (){
+											for (var i = 0; i < objects.length; ++i) {
+												arcGen(node, objects[i].sc_addr);
+											}	
+											dfd.resolve();											
+										}).fail(function () {
+											dfd.resolve();
+										});
+									}).fail(dfd.resolve);								
+								}).fail(dfd.resolve);							
+							}).fail(dfd.resolve);
+						});
+						return dfd.promise();
+					};
+				
+					var arcGen = function (contour, child) {
+						var dfd = new jQuery.Deferred();
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, contour,
+                            child).done(dfd.resolve).fail(dfd.reject);
+
+						return dfd.promise();
+					};				
+					var funcs = [];
+					funcs.push(fQueue.Func(scDraftGen, []));
+				
+					// run tasks
+					fQueue.Queue.apply(this, funcs).done(dfd.resolve).fail(dfd.reject);
+
+					return dfd.promise();
+				}
+			}
+			
             fQueue.Queue(
                 /* Translate nodes */
                 fQueue.Func(translateNodes),
                 fQueue.Func(translateLinks),
                 fQueue.Func(preTranslateContoursAndBus),
                 fQueue.Func(translateEdges),
-                fQueue.Func(translateContours)
+                fQueue.Func(translateContours),
+				fQueue.Func(createUserDraftContour)
             ).done(fireCallback);
 
         }

@@ -129,6 +129,7 @@ SCg.Editor.prototype = {
                 self.hideTool(self.toolOpen());
                 self.hideTool(self.toolSave());
                 self.hideTool(self.toolIntegrate());
+				self.hideTool(self.toolCreateDraft());
                 self.hideTool(self.toolUndo());
                 self.hideTool(self.toolRedo());
             }
@@ -225,6 +226,10 @@ SCg.Editor.prototype = {
     toolIntegrate: function () {
         return this.tool('integrate');
     },
+	
+	toolCreateDraft: function () {
+        return this.tool('create-draft');
+    },
 
     toolOpen: function () {
         return this.tool('open');
@@ -266,7 +271,8 @@ SCg.Editor.prototype = {
                 self.toolClear(),
                 self.toolOpen(),
                 self.toolSave(),
-                self.toolIntegrate()
+                self.toolIntegrate(),
+				self.toolCreateDraft()
             ];
             for (var button = 0; button < tools.length; button++) {
                 self.toggleTool(tools[button]);
@@ -275,6 +281,7 @@ SCg.Editor.prototype = {
             self.hideTool(self.toolSetContent());
             self.hideTool(self.toolChangeType());
             self.hideTool(self.toolDelete());
+			self.hideTool(self.toolIntegrate());
         });
         select.click(function () {
             self.scene.setEditMode(SCgEditMode.SCgModeSelect);
@@ -633,6 +640,16 @@ SCg.Editor.prototype = {
                 });
         });
 
+        this.toolCreateDraft().click(function () {
+			self.showTool(self.toolIntegrate());
+			self.hideTool(self.toolCreateDraft());
+			self._disableTool(self.toolCreateDraft());
+            if (self.translateToSc)
+                self.translateToSc(self.scene, function() {
+                    self._enableTool(self.toolCreateDraft());
+                }, true);
+        });
+
         this.toolZoomIn().click(function () {
             self.render.changeScale(1.1);
         });
@@ -707,6 +724,8 @@ SCg.Editor.prototype = {
         update_tool(this.toolZoomIn());
         update_tool(this.toolZoomOut());
         update_tool(this.toolIntegrate());
+		self.hideTool(this.toolIntegrate());
+		update_tool(this.toolCreateDraft());
         update_tool(this.toolOpen());
     },
 
