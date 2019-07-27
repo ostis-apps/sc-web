@@ -65,6 +65,8 @@ SCg.Scene = function (options) {
     this.buses = [];
 
     this.objects = Object.create(null);
+    this.draft_added_elements = [];
+    this.draft_addr = null;
     this.edit_mode = SCgEditMode.SCgModeSelect;
 
     // object, that placed under mouse
