@@ -86,10 +86,16 @@ SCg.Scene = function (options) {
     this.mouse_pos = new SCg.Vector3(0, 0, 0);
 
     // edge source and target
-    this.edge_data = {source: null, target: null};
+    this.edge_data = {
+        source: null,
+        target: null
+    };
 
     // bus source
-    this.bus_data = {source: null, end: null};
+    this.bus_data = {
+        source: null,
+        end: null
+    };
 
     // callback for selection changed
     this.event_selection_changed = null;
@@ -238,7 +244,7 @@ SCg.Scene.prototype = {
         for (var idx in objects)
             collect_objects(objs, objects[idx]);
 
-        this.commandManager.execute(new SCgCommandDeleteObjects(objs, this));
+        this.commandManager.execute(new SCgCommandDeleteObjects(objs, this));        
 
         this.updateRender();
     },
@@ -263,8 +269,7 @@ SCg.Scene.prototype = {
         this.render.update();
     },
 
-    onLayoutTick: function () {
-    },
+    onLayoutTick: function () {},
 
     /**
      * Returns size of container, where graph drawing
@@ -371,9 +376,13 @@ SCg.Scene.prototype = {
         if (this.selected_objects.length == 1) {
             var obj = this.selected_objects[0];
 
-            if (obj instanceof SCg.ModelEdge || obj instanceof SCg.ModelBus || obj instanceof SCg.ModelContour) { /* @todo add contour and bus */
+            if (obj instanceof SCg.ModelEdge || obj instanceof SCg.ModelBus || obj instanceof SCg.ModelContour) {
+                /* @todo add contour and bus */
                 for (idx in obj.points) {
-                    this.line_points.push({pos: obj.points[idx], idx: idx});
+                    this.line_points.push({
+                        pos: obj.points[idx],
+                        idx: idx
+                    });
                 }
             }
         }
@@ -592,15 +601,30 @@ SCg.Scene.prototype = {
         var objects = this.selected_objects;
         var typeMask = objects[0].sc_type & sc_type_arc_mask ? sc_type_arc_mask :
             objects[0].sc_type & sc_type_node ?
-                sc_type_node : 0;
+            sc_type_node : 0;
         return (objects.every(function (obj) {
             return ((obj.sc_type & typeMask) && !(obj instanceof SCg.ModelContour) && !(obj instanceof SCg.ModelBus));
         }))
     },
 
-    isSelectedObjectAllHaveScAddr: function () {
+    isSelectedObjectSomeHaveScAddr: function () {
         return (this.selected_objects.some(function (obj) {
             return obj.sc_addr;
+        }))
+    },
+
+    isSelectedObjectAllHaveScAddr: function () {
+        return (this.selected_objects.every(function (obj) {
+            return obj.sc_addr;
+        }))
+    },
+
+    isSelectedObjectAllInDraft: function () {
+        if (!this.draft_addr)
+            return this.draft_addr;
+        draft_added_elements = this.draft_added_elements;
+        return (this.selected_objects.every(function (obj) {
+            return draft_added_elements.includes(obj.sc_addr);
         }))
     }
 };

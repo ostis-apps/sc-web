@@ -1,0 +1,22 @@
+ui_scg_control_tool_delete_from_draft
+    <- ui_scg_control; sc_node_not_relation;
+    => nrel_main_idtf:
+        [Удалить из черновика]
+        (* <- lang_ru;; *);
+    => nrel_main_idtf:
+        [Delete from draft]
+        (* <- lang_en;; *);
+	<- rrel_key_sc_element:
+    		..e
+		(*
+		<- sc_explanation;;
+   		<= nrel_sc_text_translation:	
+                ..t1
+	    	(*
+        	-> [Используйте эту функцию для удаления элементов из черновика] (* <- lang_ru;; *);;
+        	*);
+	        ..t2
+		(*
+		-> [Use this function to delete elements from draft] (* <- lang_en;; *);;
+		*);;
+    *);;
