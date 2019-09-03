@@ -3,7 +3,7 @@
 }
 
 #window-header-tools {
-    height: 95%;
+    height: 100px;
     display: flex;
     flex-direction: column;
 }
