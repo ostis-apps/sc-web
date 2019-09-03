@@ -77,6 +77,7 @@ class SocketProxy:
         (self.write_rights and (cmdCode == sctp.types.SctpCommandType.SCTP_CMD_CREATE_NODE or \
         cmdCode == sctp.types.SctpCommandType.SCTP_CMD_CREATE_ARC or \
         cmdCode == sctp.types.SctpCommandType.SCTP_CMD_CREATE_LINK or \
+        cmdCode == sctp.types.SctpCommandType.SCTP_CMD_ERASE_ELEMENT or \
         cmdCode == sctp.types.SctpCommandType.SCTP_CMD_SET_LINK_CONTENT)):
             # send data to socket
             err = self.sock.sendall(data)

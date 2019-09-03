@@ -36,31 +36,31 @@ SCg.Editor.prototype = {
             'scg-type-edge-const': sc_type_edge_common | sc_type_const,
             'scg-type-arc-const': sc_type_arc_common | sc_type_const,
             'scg-type-arc-const-perm-pos-access': sc_type_arc_access | sc_type_const | sc_type_arc_pos |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-const-perm-neg-access': sc_type_arc_access | sc_type_const | sc_type_arc_neg |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-const-perm-fuz-access': sc_type_arc_access | sc_type_const | sc_type_arc_fuz |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-const-temp-pos-access': sc_type_arc_access | sc_type_const | sc_type_arc_pos |
-            sc_type_arc_temp,
+                sc_type_arc_temp,
             'scg-type-arc-const-temp-neg-access': sc_type_arc_access | sc_type_const | sc_type_arc_neg |
-            sc_type_arc_temp,
+                sc_type_arc_temp,
             'scg-type-arc-const-temp-fuz-access': sc_type_arc_access | sc_type_const | sc_type_arc_fuz |
-            sc_type_arc_temp,
+                sc_type_arc_temp,
             'scg-type-edge-var': sc_type_edge_common | sc_type_var,
             'scg-type-arc-var': sc_type_arc_common | sc_type_var,
             'scg-type-arc-var-perm-pos-access': sc_type_arc_access | sc_type_var | sc_type_arc_pos |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-var-perm-neg-access': sc_type_arc_access | sc_type_var | sc_type_arc_neg |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-var-perm-fuz-access': sc_type_arc_access | sc_type_var | sc_type_arc_fuz |
-            sc_type_arc_perm,
+                sc_type_arc_perm,
             'scg-type-arc-var-temp-pos-access': sc_type_arc_access | sc_type_var | sc_type_arc_pos |
-            sc_type_arc_temp,
+                sc_type_arc_temp,
             'scg-type-arc-var-temp-neg-access': sc_type_arc_access | sc_type_var | sc_type_arc_neg |
-            sc_type_arc_temp,
+                sc_type_arc_temp,
             'scg-type-arc-var-temp-fuz-access': sc_type_arc_access | sc_type_var | sc_type_arc_fuz |
-            sc_type_arc_temp
+                sc_type_arc_temp
         };
 
         this.render = new SCg.Render();
@@ -128,7 +128,8 @@ SCg.Editor.prototype = {
                 self.hideTool(self.toolContour());
                 self.hideTool(self.toolOpen());
                 self.hideTool(self.toolSave());
-                self.hideTool(self.toolIntegrate());
+                //self.hideTool(self.toolIntegrate());
+                self.hideTool(self.toolCreateDraft());
                 self.hideTool(self.toolUndo());
                 self.hideTool(self.toolRedo());
             }
@@ -222,8 +223,16 @@ SCg.Editor.prototype = {
         return this.tool('clear');
     },
 
-    toolIntegrate: function () {
+    /*toolIntegrate: function () {
         return this.tool('integrate');
+    },*/
+
+    toolCreateDraft: function () {
+        return this.tool('create-draft');
+    },
+
+    toolDeleteFromDraft: function () {
+        return this.tool('delete-from-draft');
     },
 
     toolOpen: function () {
@@ -266,7 +275,7 @@ SCg.Editor.prototype = {
                 self.toolClear(),
                 self.toolOpen(),
                 self.toolSave(),
-                self.toolIntegrate()
+				        self.toolCreateDraft()
             ];
             for (var button = 0; button < tools.length; button++) {
                 self.toggleTool(tools[button]);
@@ -275,6 +284,7 @@ SCg.Editor.prototype = {
             self.hideTool(self.toolSetContent());
             self.hideTool(self.toolChangeType());
             self.hideTool(self.toolDelete());
+            self.hideTool(self.toolDeleteFromDraft());
         });
         select.click(function () {
             self.scene.setEditMode(SCgEditMode.SCgModeSelect);
@@ -544,7 +554,7 @@ SCg.Editor.prototype = {
                     if (e.keyCode == KeyCode.Enter) {
                         var obj = self.scene.selected_objects[0];
                         if (obj.content != input.val() || obj.contentType != input_content_type
-                                .val()) {
+                            .val()) {
                             self.scene.commandManager.execute(new SCgCommandChangeContent(obj,
                                 input.val(),
                                 input_content_type.val()));
@@ -625,12 +635,154 @@ SCg.Editor.prototype = {
             saveAs(blob, "new_file.gwf");
         });
 
-        this.toolIntegrate().click(function () {
+        /*this.toolIntegrate().click(function () {
             self._disableTool(self.toolIntegrate());
             if (self.translateToSc)
                 self.translateToSc(self.scene, function () {
                     self._enableTool(self.toolIntegrate());
                 });
+        });*/
+
+        this.toolCreateDraft().click(function () {
+            self._disableTool(self.toolCreateDraft());
+            if (self.translateToSc)
+                self.translateToSc(self.scene, function () {
+                    self._enableTool(self.toolCreateDraft());
+                }, true);
+        });
+
+        this.toolDeleteFromDraft().click(function () {
+            var scene = self.scene;
+            self._disableTool(self.toolDeleteFromDraft());
+
+            function isInDraft(elem) {
+                var dfd = jQuery.Deferred();
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [scene.draft_addr, sc_type_arc_pos_const_perm, elem])
+                    .done(function (res) {
+                        dfd.resolve(true);
+                    })
+                    .fail(function () {
+                        dfd.resolve(false);
+                    });
+                return dfd.promise();
+            }
+
+            function hasConnectorsOutsideDraft(type, list) {
+                var dfd = jQuery.Deferred();
+                window.sctpClient.iterate_elements(type, list)
+                    .done(function (res) {
+                        var promises = [];
+                        res.forEach(function (result) {
+                            if (!(type == SctpIteratorType.SCTP_ITERATOR_3A_A_F && (result[0] == scene.draft_addr || result[0] == self.render.sandbox.addr))) {
+                                promises.push(isInDraft(result[1]));
+                            }
+                        })
+                        $.when.apply($, promises).done(
+                            function () {
+                                var flag = false;
+                                for (arg in arguments) {
+                                    if (arg[0] == true) {
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                dfd.resolve(flag);
+                            });
+                    })
+                    .fail(function () {
+                        dfd.resolve(false);
+                    });
+                return dfd.promise();
+            }
+
+            function deleteTotally(elem) {
+                var dfd = jQuery.Deferred();
+                window.sctpClient.erase_element(elem).done(dfd.resolve).fail(dfd.reject);
+                return dfd.promise();
+            }
+
+            function deleteFromDraftOnly(elem) {
+                var dfd = jQuery.Deferred();
+                var funcs = [];
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [scene.draft_addr, sc_type_arc_pos_const_perm, elem])
+                    .done(function (res) {
+                        res.forEach(function (result) {
+                            funcs.push(deleteTotally(result[1]));
+                        })
+                    });
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F, [elem, 0, 0, sc_type_arc_pos_const_perm, scene.draft_addr])
+                    .done(function (res) {
+                        res.forEach(function (result) {
+                            funcs.push(deleteTotally(result[1]));
+                        })
+                    });
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_5A_A_F_A_F, [0, 0, elem, sc_type_arc_pos_const_perm, scene.draft_addr])
+                    .done(function (res) {
+                        res.forEach(function (result) {
+                            funcs.push(deleteTotally(result[1]));
+                        })
+                    });
+                $.when.apply($, funcs).then(dfd.resolve, dfd.reject);
+                return dfd.promise();
+            }
+
+            function deleteElementFromDraft(elem) {
+                var dfd = jQuery.Deferred();
+                if (window.sctpClient.check_element(elem)) {
+                    $.when(hasConnectorsOutsideDraft(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [elem, 0, 0])).done(
+                        function (result) {
+                            if (result == true) {
+                                $.when(deleteFromDraftOnly(elem)).then(dfd.resolve, dfd.reject);
+                            } else {
+                                $.when(hasConnectorsOutsideDraft(SctpIteratorType.SCTP_ITERATOR_3A_A_F, [0, 0, elem])).done(
+                                    function (result) {
+                                        if (result == true) {
+                                            $.when(deleteFromDraftOnly(elem)).then(dfd.resolve, dfd.reject);
+                                        } else {
+                                            $.when(deleteTotally(elem)).then(dfd.resolve, dfd.reject);
+                                        }
+                                    })
+                            }
+                        })
+                }
+                return dfd.promise();
+            }
+
+            function deleteAll() {
+                var dfd = jQuery.Deferred();
+                var promises = []
+
+                scene.selected_objects.forEach(function (obj) {
+                    var elem = obj.sc_addr;
+                    promises.push(deleteElementFromDraft(elem));
+                });
+
+                $.when.apply($, promises).then(dfd.resolve, dfd.reject);
+                return dfd.promise();
+            }
+
+            $.when(deleteAll())
+                .done(function () {
+                    window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_A, [scene.draft_addr, sc_type_arc_pos_const_perm, 0])
+                        .always(function () {
+                            scene.draft_added_elements = [];
+                            if (scene.selected_objects.length > 0) {
+                                scene.deleteObjects(scene.selected_objects.slice(0, scene.selected_objects.length));
+                                scene.clearSelection();
+                            }
+                            self._enableTool(self.toolDeleteFromDraft());
+                        })
+                        .done(function (res) {
+                            res.forEach(function (result) {
+                                scene.draft_added_elements.push(result[2]);
+                            })
+                        })
+                })
+                .fail(function () {
+                    self._enableTool(self.toolDeleteFromDraft());
+                    SCgDebug.error("Failed to remove from draft");
+                });
+
         });
 
         this.toolZoomIn().click(function () {
@@ -657,8 +809,9 @@ SCg.Editor.prototype = {
             this.hideTool(this.toolSetContent());
             this.hideTool(this.toolChangeType());
             this.hideTool(this.toolDelete());
+            this.hideTool(this.toolDeleteFromDraft());
             if (this.scene.selected_objects.length > 1) {
-                if (this.scene.isSelectedObjectAllArcsOrAllNodes() && !this.scene.isSelectedObjectAllHaveScAddr()) {
+                if (this.scene.isSelectedObjectAllArcsOrAllNodes() && !this.scene.isSelectedObjectSomeHaveScAddr()) {
                     this.showTool(this.toolChangeType());
                 }
             } else if (this.scene.selected_objects.length == 1 && !this.scene.selected_objects[0].sc_addr) {
@@ -672,6 +825,9 @@ SCg.Editor.prototype = {
                 } else if (this.scene.selected_objects[0] instanceof SCg.ModelLink) {
                     this.showTool(this.toolSetContent());
                 }
+            }
+            if (this.scene.selected_objects.length > 0 && this.scene.isSelectedObjectAllHaveScAddr() && this.scene.isSelectedObjectAllInDraft()) {
+                this.showTool(this.toolDeleteFromDraft());
             }
             if (this.scene.selected_objects.length > 0) this.showTool(this.toolDelete());
         }
@@ -706,7 +862,10 @@ SCg.Editor.prototype = {
         update_tool(this.toolClear());
         update_tool(this.toolZoomIn());
         update_tool(this.toolZoomOut());
-        update_tool(this.toolIntegrate());
+        //update_tool(this.toolIntegrate());
+        //self.hideTool(this.toolIntegrate());
+        update_tool(this.toolCreateDraft());
+        update_tool(this.toolDeleteFromDraft());
         update_tool(this.toolOpen());
     },
 

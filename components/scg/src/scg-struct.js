@@ -62,8 +62,7 @@ function ScgFromScImpl(_sandbox, _editor, aMapping) {
                         resolveIdtf(addr, model_edge);
                     }
                 } else if (type & sc_type_link) {
-                    var containerId = 'scg-window-' + sandbox.addr + '-' + addr + '-' + new Date().getUTCMilliseconds();
-                    ;
+                    var containerId = 'scg-window-' + sandbox.addr + '-' + addr + '-' + new Date().getUTCMilliseconds();;
                     var model_link = SCg.Creator.createLink(randomPos(), containerId);
                     editor.scene.appendLink(model_link);
                     editor.scene.objects[addr] = model_link;
@@ -133,7 +132,8 @@ function scgScStructTranslator(_editor, _sandbox) {
         tasks = [],
         processBatch = false,
         taskDoneCount = 0,
-        arcMapping = {};
+        arcMapping = {},
+        draft_objects_addrs = [];
 
     if (!sandbox.is_struct)
         throw "Snadbox must to work with sc-struct";
@@ -157,16 +157,31 @@ function scgScStructTranslator(_editor, _sandbox) {
         if (currentLanguage) {
             window.sctpClient.create_link().done(function (link_addr) {
                 window.sctpClient.set_link_content(link_addr, obj.text).done(function () {
+                    draft_objects_addrs.push(link_addr);
                     window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, obj.sc_addr,
-                        link_addr).done(function (arc_addr) {
-                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm,
-                            currentLanguage, link_addr).done(function () {
+                            link_addr)
+                        .done(function (arc_addr) {
+                            draft_objects_addrs.push(arc_addr);
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm,
-                                window.scKeynodes.nrel_main_idtf, arc_addr)
-                                .done(dfd.resolve)
-                                .fail(dfd.reject);
+                                currentLanguage, link_addr).done(function (arc2_addr) {
+                                draft_objects_addrs.push(arc2_addr);
+                                if (!editor.scene.draft_added_elements.includes(currentLanguage)) {
+                                    draft_objects_addrs.push(currentLanguage);
+                                }
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm,
+                                        window.scKeynodes.nrel_main_idtf, arc_addr)
+                                    .done(
+                                        function (arc3_addr) {
+                                            if (!editor.scene.draft_added_elements.includes(window.scKeynodes.nrel_main_idtf)) {
+                                                draft_objects_addrs.push(window.scKeynodes.nrel_main_idtf);
+                                            }
+                                            draft_objects_addrs.push(arc3_addr);
+                                            dfd.resolve();
+                                        }
+                                    )
+                                    .fail(dfd.reject);
+                            }).fail(dfd.reject);
                         }).fail(dfd.reject);
-                    }).fail(dfd.reject);
                 }).fail(dfd.reject);
             }).fail(dfd.reject);
 
@@ -182,8 +197,8 @@ function scgScStructTranslator(_editor, _sandbox) {
                 throw "Invalid parameter";
 
             window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [sandbox.addr,
-                sc_type_arc_pos_const_perm, obj.sc_addr
-            ]).done(function (r) {
+				sc_type_arc_pos_const_perm, obj.sc_addr
+			]).done(function (r) {
                 if (r.length == 0) {
                     appendToConstruction(obj);
                 }
@@ -193,7 +208,7 @@ function scgScStructTranslator(_editor, _sandbox) {
             scgFromSc.update(added, element, arc);
         },
 
-        translateToSc: function (callback) {
+        translateToSc: function (callback, createUserContour) {
             if (!sandbox.is_struct)
                 throw "Invalid state. Trying translate sc-link into sc-memory";
 
@@ -204,6 +219,8 @@ function scgScStructTranslator(_editor, _sandbox) {
             var links = editor.scene.links.slice();
             var buses = editor.scene.buses.slice();
             var objects = [];
+            draft_objects_addrs = [];
+            var userContours = [];
 
 
             var appendObjects = function () {
@@ -221,8 +238,6 @@ function scgScStructTranslator(_editor, _sandbox) {
                 editor.scene.layout();
                 appendObjects();
             }
-
-
             /// --------------------
             var translateNodes = function () {
                 var dfdNodes = new jQuery.Deferred();
@@ -235,6 +250,7 @@ function scgScStructTranslator(_editor, _sandbox) {
                             node.setScAddr(r);
                             node.setObjectState(SCgObjectState.NewInMemory);
                             objects.push(node);
+                            draft_objects_addrs.push(node.sc_addr);
                             if (node.text) {
                                 translateIdentifier(node)
                                     .done(dfd.resolve)
@@ -244,6 +260,9 @@ function scgScStructTranslator(_editor, _sandbox) {
                             }
                         });
                     } else {
+                        if (!editor.scene.draft_added_elements.includes(node.sc_addr)) {
+                            draft_objects_addrs.push(node.sc_addr);
+                        }
                         dfd.resolve();
                     }
 
@@ -267,14 +286,18 @@ function scgScStructTranslator(_editor, _sandbox) {
                 var scAddrGen = function (c) {
                     var dfd = new jQuery.Deferred();
 
-                    if (c.sc_addr)
+                    if (c.sc_addr) {
+                        if (!editor.scene.draft_added_elements.includes(c.sc_addr)) {
+                            draft_objects_addrs.push(c.sc_addr);
+                        }
                         dfd.resolve();
-                    else {
+                    } else {
                         window.sctpClient.create_node(sc_type_const | sc_type_node |
                             sc_type_node_struct).done(function (node) {
                             c.setScAddr(node);
                             c.setObjectState(SCgObjectState.NewInMemory);
                             objects.push(c);
+                            draft_objects_addrs.push(c.sc_addr);
                             if (c.text) {
                                 translateIdentifier(c)
                                     .done(dfd.resolve)
@@ -346,7 +369,7 @@ function scgScStructTranslator(_editor, _sandbox) {
                         window.sctpClient.create_arc(edge.sc_type, src, trg).done(function (r) {
                             edge.setScAddr(r);
                             edge.setObjectState(SCgObjectState.NewInMemory);
-
+                            draft_objects_addrs.push(edge.sc_addr);
                             objects.push(edge);
                             translatedCount++;
                             nextIteration();
@@ -375,27 +398,28 @@ function scgScStructTranslator(_editor, _sandbox) {
                 var arcGen = function (contour, child) {
                     var dfd = new jQuery.Deferred();
 
-                    window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [contour.sc_addr,
-                        sc_type_arc_pos_const_perm, child.sc_addr
-                    ])
+                    window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F, [contour.sc_addr, sc_type_arc_pos_const_perm, child.sc_addr])
                         .done(dfd.resolve)
                         .fail(function () {
                             window.sctpClient.create_arc(sc_type_arc_pos_const_perm, contour.sc_addr,
-                                child.sc_addr).done(dfd.resolve).fail(dfd.reject);
+                                child.sc_addr).done(function (arc_addr) {
+                                draft_objects_addrs.push(arc_addr);
+                                dfd.resolve();
+                            }).fail(dfd.reject);
                         });
 
                     return dfd.promise();
                 };
 
-                var acrFuncs = [];
+                var arcFuncs = [];
                 for (var i = 0; i < editor.scene.contours.length; ++i) {
                     var c = editor.scene.contours[i];
                     for (var j = 0; j < c.childs.length; ++j) {
-                        acrFuncs.push(fQueue.Func(arcGen, [c, c.childs[j]]));
+                        arcFuncs.push(fQueue.Func(arcGen, [c, c.childs[j]]));
                     }
                 }
 
-                fQueue.Queue.apply(this, acrFuncs).done(dfdCountours.resolve).fail(dfdCountours.reject);
+                fQueue.Queue.apply(this, arcFuncs).done(dfdCountours.resolve).fail(dfdCountours.reject);
 
                 return dfdCountours.promise();
             }
@@ -446,13 +470,19 @@ function scgScStructTranslator(_editor, _sandbox) {
                             }
 
                             objects.push(link);
+                            draft_objects_addrs.push(link.sc_addr);
 
                             window.sctpClient.set_link_content(r, content);
                             if (link.fileReaderResult) {
                                 window.scHelper.setLinkFormat(r, keynode);
                             } else {
                                 window.sctpClient.create_arc(sc_type_arc_pos_const_perm,
-                                    keynode, r);
+                                    keynode, r).done(function (arc_addr) {
+                                    draft_objects_addrs.push(arc_addr);
+                                    if (!editor.scene.draft_added_elements.includes(keynode.sc_addr)) {
+                                        draft_objects_addrs.push(keynode.sc_addr);
+                                    }
+                                });
                             }
                             dfd.resolve();
                         });
@@ -473,13 +503,76 @@ function scgScStructTranslator(_editor, _sandbox) {
                 return dfdLinks.promise();
             }
 
+            var createUserDraftContour = function () {
+                var userScAddr = $("#auth-user-name").attr("sc_addr");
+                if (createUserContour && userScAddr) {
+                    var dfd = new jQuery.Deferred();
+                    // create user draft contour
+                    var scDraftGen = function () {
+                        var dfd = new jQuery.Deferred();
+
+                        if (!editor.scene.draft_addr) {
+                            // create contour node
+                            window.sctpClient.create_node(sc_type_const | sc_type_node |
+                                sc_type_node_struct).done(function (node) {
+                                userContours[userScAddr] = node;
+                                editor.scene.draft_addr = node;
+                                // put contour node into draft set
+                                window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.draft,
+                                    node).done(function () {
+                                    // create nrel_authors relation between user draft contour and user
+                                    window.sctpClient.create_arc(sc_type_arc_common | sc_type_const, node, userScAddr).done(function (arc_addr) {
+                                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, window.scKeynodes.nrel_authors, arc_addr).done(function () {
+                                            addDraftObjects(node);
+                                            dfd.resolve();
+                                        }).fail(function () {
+                                            dfd.resolve();
+                                        });
+                                    }).fail(dfd.reject);
+                                }).fail(dfd.reject);
+                            }).fail(dfd.reject);
+                        } else {
+                            addDraftObjects(editor.scene.draft_addr);
+                            dfd.resolve();
+                        }
+                        return dfd.promise();
+                    };
+
+                    var addDraftObjects = function (draft) {
+                        for (var i = 0; i < draft_objects_addrs.length; ++i) {
+                            arcGen(draft, draft_objects_addrs[i]);
+                        }
+                    }
+
+                    var arcGen = function (contour, child) {
+                        var dfd = new jQuery.Deferred();
+                        window.sctpClient.create_arc(sc_type_arc_pos_const_perm, contour,
+                                child)
+                            .done(function () {
+                                editor.scene.draft_added_elements.push(child);
+                                dfd.resolve();
+                            }).fail(dfd.reject);
+
+                        return dfd.promise();
+                    };
+                    var funcs = [];
+                    funcs.push(fQueue.Func(scDraftGen, []));
+
+                    // run tasks
+                    fQueue.Queue.apply(this, funcs).done(dfd.resolve).fail(dfd.reject);
+
+                    return dfd.promise();
+                }
+            }
+
             fQueue.Queue(
                 /* Translate nodes */
                 fQueue.Func(translateNodes),
                 fQueue.Func(translateLinks),
                 fQueue.Func(preTranslateContoursAndBus),
                 fQueue.Func(translateEdges),
-                fQueue.Func(translateContours)
+                fQueue.Func(translateContours),
+                fQueue.Func(createUserDraftContour)
             ).done(fireCallback);
 
         }
