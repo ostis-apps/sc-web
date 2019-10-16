@@ -93,13 +93,6 @@ div#footer {
     flex-grow: 1;
 }
 
-#window-header-tools {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    z-index: 900;
-}
-
 #static-window-container ~ #window-container {
     padding: 0;
     display: flex;
