@@ -2,12 +2,6 @@
     position: relative;
 }
 
-#window-header-tools {
-    height: 100px;
-    display: flex;
-    flex-direction: column;
-}
-
 #menu_container_eekb {
     width: 250px;
     height: 100%;
