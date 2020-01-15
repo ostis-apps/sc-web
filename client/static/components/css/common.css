@@ -59,6 +59,10 @@ div#footer {
     z-index: 1000;
 }
 
+treeview .indent + .indent {
+    margin: 0!important;
+}
+
 #sc-ui-locker-text {
     font-size: 14px;
     color: #000;
@@ -155,6 +159,10 @@ div#footer {
     cursor: pointer;
     margin-left: 5px;
     margin-right: 5px;
+}
+
+.btn-group {
+    min-height: 44px;
 }
 
 /* --- Accordion --- */
