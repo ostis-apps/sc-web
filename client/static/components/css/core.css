@@ -22,9 +22,11 @@
     background-image: url(/static/components/images/menu-atom.png);
 }
 
-div#window-header-tools {
+#window-header-tools {
     position: absolute;
     z-index: 2;
-    right: 19px;
-    top: 12px;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
 }

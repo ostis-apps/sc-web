@@ -1,7 +1,8 @@
 #window-header-tools {
+    position: absolute;
+    z-index: 2;
     top: 20px;
     right: 30px;
-    z-index: 900;
     display: flex;
     flex-direction: column;
 }

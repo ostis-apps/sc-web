@@ -22,6 +22,17 @@ div#footer {
     margin-top: 10px;
 }
 
+#tree-view {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.list-group {
+    height: 60vh;
+    border-bottom: 0px;
+}
+
 #sc-ui-locker {
     position: absolute;
     top: 50%;
