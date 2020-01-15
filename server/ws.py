@@ -111,12 +111,12 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
         key = self.get_secure_cookie(base.BaseHandler.cookie_user_key, None, 1)
         
         database = db.DataBase()
-        canEdit = True
+        can_edit = False
         u = database.get_user_by_key(key)
         if u:
-            canEdit = base.User._canEdit(database.get_user_role(u).rights)
+            can_edit = base.User._canEdit(database.get_user_role(u).rights)
         
-        self.proxy = SocketProxy(self.socket_write, canEdit)
+        self.proxy = SocketProxy(self.socket_write, can_edit)
 
     def on_close(self):
         if self in clients:
