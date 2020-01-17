@@ -2,8 +2,6 @@ SCg.Render = function () {
     this.scene = null;
 };
 
-const canEdit = SCWeb.ui.UserPanel.is_authenticated;
-
 SCg.Render.prototype = {
 
     init: function (params) {
