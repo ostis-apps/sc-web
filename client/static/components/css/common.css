@@ -26,11 +26,12 @@ div#footer {
     border-bottom: 1px solid #ddd;
     border-top: 1px solid #ddd;
     border-radius: 6px;
+    max-height: 60vh;
 }
 
 .list-group {
-    height: 60vh;
     border-bottom: 0px;
+    margin-bottom: 0px;
 }
 
 #sc-ui-locker {
@@ -537,8 +538,11 @@ div[class="tooltip-inner"] {
 
 /* --- expert mode checkbox --- */
 #expert_mode_container {
-  padding-top: 15px;
-  padding-bottom: 15px;
+    display: flex;
+    font-family: "Liberation Sans";
+    color: rgb(119, 119, 119);
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 /* The switch - the box around the slider */
 .switch {
