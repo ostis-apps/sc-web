@@ -22,6 +22,17 @@ div#footer {
     margin-top: 10px;
 }
 
+#tree-view {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.list-group {
+    height: 60vh;
+    border-bottom: 0px;
+}
+
 #sc-ui-locker {
     position: absolute;
     top: 50%;
@@ -46,6 +57,10 @@ div#footer {
     background: #CCC url("../images/loading-cog.gif") no-repeat center center;
     opacity: 0.5;
     z-index: 1000;
+}
+
+treeview .indent + .indent {
+    margin: 0!important;
 }
 
 #sc-ui-locker-text {
@@ -144,6 +159,10 @@ div#footer {
     cursor: pointer;
     margin-left: 5px;
     margin-right: 5px;
+}
+
+.btn-group {
+    min-height: 44px;
 }
 
 /* --- Accordion --- */

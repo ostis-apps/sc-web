@@ -141,7 +141,7 @@ module.exports = function(grunt) {
             },
             coreCss: {
               cwd: './client/css/',
-                src: ['core.css', 'window-header-tools.css'],
+                src: ['core.css'],
               dest: clientCssDirPath,
               expand: true,
               flatten: true
