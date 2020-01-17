@@ -55,7 +55,7 @@ div#footer {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #CCC url("../images/loading-cog.gif") no-repeat center center;
+    background: #CCC url("../static/components/images/loading-cog.gif") no-repeat center center;
     opacity: 0.5;
     z-index: 1000;
 }
@@ -96,7 +96,7 @@ treeview .indent + .indent {
 }
 
 .loading {
-    background: #CCC url("../images/load-content-cog.gif") no-repeat center center;
+    background: #CCC url("../static/components/images/load-content-cog.gif") no-repeat center center;
     min-width: 36px;
     min-height: 36px;
 }
@@ -130,7 +130,7 @@ treeview .indent + .indent {
 }
 
 .task_icon.active {
-    background-image: url('../images/task-cog.gif');
+    background-image: url('../static/components/images/task-cog.gif');
 }
 
 .task_icon {
@@ -139,7 +139,7 @@ treeview .indent + .indent {
     margin-top: 12px;
     margin-left: 10px;
     text-align: center;
-    background-image: url('../images/task-complete.png');
+    background-image: url('../static/components/images/task-complete.png');
 }
 
 .task_text {
@@ -207,7 +207,7 @@ treeview .indent + .indent {
 */
 /* --- Arguments --- */
 .argument-wait {
-    background: #5cb85c url("../images/argument-cog.gif") no-repeat center center;
+    background: #5cb85c url("../static/components/images/argument-cog.gif") no-repeat center center;
 }
 
 .argument-container {
@@ -226,7 +226,7 @@ treeview .indent + .indent {
 .argument-translate-state {
     width: 32px;
     height: 32px;
-    background: #3276B1 url("../images/arg-translate-cog.gif") no-repeat center center;
+    background: #3276B1 url("../static/components/images/arg-translate-cog.gif") no-repeat center center;
 }
 
 .argument-item {
@@ -240,7 +240,7 @@ treeview .indent + .indent {
     max-height: 6px;
     max-width: 18px;
     display: inline-block;
-    background: #fff url("../images/resolve-idtf-anim.gif") no-repeat center center;
+    background: #fff url("../static/components/images/resolve-idtf-anim.gif") no-repeat center center;
 }
 
 /* --- window --- */
@@ -269,7 +269,7 @@ treeview .indent + .indent {
 .search-processing {
     position: relative;
     right: 0;
-    background: #fff url("../images/search-cog.gif") no-repeat right center;
+    background: #fff url("../static/components/images/search-cog.gif") no-repeat right center;
 }
 
 .tt-dropdown-menu .tt-dataset-idtf {
@@ -391,25 +391,25 @@ treeview .indent + .indent {
 /* --- menu --- */
 .menu-cmd-noatom:before {
     position: absolute;
-    content: url("../images/menu-noatom.png");
+    content: url("../static/components/images/menu-noatom.png");
     left: 0px;
 }
 
 .dropdown-menu .menu-cmd-noatom:before {
     position: absolute;
-    content: url("../images/menu-noatom.png");
+    content: url("../static/components/images/menu-noatom.png");
     left: 5px;
 }
 
 .menu-cmd-atom:before {
     position: absolute;
-    content: url("../images/menu-atom.png");
+    content: url("../static/components/images/menu-atom.png");
     left: 3px;
 }
 
 .menu-cmd-keynode:before {
     position: absolute;
-    content: url("../images/menu-keynode.png");
+    content: url("../static/components/images/menu-keynode.png");
     left: 3px;
 }
 
@@ -421,7 +421,7 @@ treeview .indent + .indent {
 .tooltip-empty {
     width: 32px;
     height: 32px;
-    background: #000 url("../images/tooltip-cog.gif") no-repeat center center;
+    background: #000 url("../static/components/images/tooltip-cog.gif") no-repeat center center;
 }
 
 /* --- help --- */
@@ -451,7 +451,7 @@ treeview .indent + .indent {
     padding: 5px;
     margin: 2px;
     display: inline-block;
-    background: url("../images/content_corner.png") 0 0 no-repeat #fafafa;
+    background: url("../static/components/images/content_corner.png") 0 0 no-repeat #fafafa;
 }
 
 .sc-content-wrap {
@@ -522,18 +522,18 @@ div[class="tooltip-inner"] {
 }
 
 .gplus-login-button {
-    background-image: url("../images/gplus/White-signin_Small_base_32dp.png");
+    background-image: url("../static/components/images/gplus/White-signin_Small_base_32dp.png");
     width: 42px;
     height: 42px;
     margin-top: 4px;
 }
 
 .gplus-login-button:hover {
-    background-image: url("../images/gplus/White-signin_Small_hover_32dp.png");
+    background-image: url("../static/components/images/gplus/White-signin_Small_hover_32dp.png");
 }
 
 .gplus-login-button:active {
-    background-image: url("../images/gplus/White-signin_Small_press_32dp.png");
+    background-image: url("../static/components/images/gplus/White-signin_Small_press_32dp.png");
 }
 
 /* --- expert mode checkbox --- */

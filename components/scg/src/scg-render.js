@@ -2,8 +2,6 @@ SCg.Render = function () {
     this.scene = null;
 };
 
-const canEdit = SCWeb.ui.UserPanel.is_authenticated;
-
 SCg.Render.prototype = {
 
     init: function (params) {
@@ -35,7 +33,7 @@ SCg.Render.prototype = {
                 self.onMouseUp(this, self);
             })
             .on('dblclick', function () {
-                if (canEdit) self.onMouseDoubleClick(this, self);
+                if (SCWeb.ui.UserPanel.is_authenticated) self.onMouseDoubleClick(this, self);
             });
 
         this.scale = 1;
@@ -676,7 +674,7 @@ SCg.Render.prototype = {
     },
 
     onMouseDown: function (window, render) {
-        var point = canEdit && this._correctPoint(d3.mouse(window));
+        var point = this._correctPoint(d3.mouse(window));
         if (render.scene.onMouseDown(point[0], point[1]))
             return;
 

@@ -141,7 +141,7 @@ module.exports = function(grunt) {
             },
             coreCss: {
               cwd: './client/css/',
-                src: ['core.css'],
+                src: ['core.css', 'common.css'],
               dest: clientCssDirPath,
               expand: true,
               flatten: true
