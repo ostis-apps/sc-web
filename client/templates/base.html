@@ -137,10 +137,12 @@
             <button type="button" class="btn btn-default" id="history-item-link" data-container="body" data-toggle="popover" data-placement="bottom">
                 <span class="glyphicon glyphicon-link"></span>
             </button>
+            {% if user %}
             <button type="button" class="btn btn-default" id="eekb_comand_btn" data-container="body" data-toggle="popover"
                     data-placement="bottom">
                 <span class="glyphicon glyphicon-align-right"></span>
             </button>
+            {% end %}
         </div>
 
         <div id="search-panel">
