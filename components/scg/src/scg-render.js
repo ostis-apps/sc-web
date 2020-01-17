@@ -35,7 +35,7 @@ SCg.Render.prototype = {
                 self.onMouseUp(this, self);
             })
             .on('dblclick', function () {
-                if (canEdit) self.onMouseDoubleClick(this, self);
+                if (SCWeb.ui.UserPanel.is_authenticated) self.onMouseDoubleClick(this, self);
             });
 
         this.scale = 1;
