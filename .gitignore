@@ -62,7 +62,7 @@ client/static/components/*/scs*
 client/static/components/*/html*
 
 # css
-client/static/components/css/
+client/static/components/css/core.css
 
 # other
 node_modules
@@ -71,7 +71,6 @@ build_kb.sh
 sc-web.ini
 /server/.settings/*
 package-lock.json
-
 
 .idea/
 
