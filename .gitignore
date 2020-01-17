@@ -62,7 +62,7 @@ client/static/components/*/scs*
 client/static/components/*/html*
 
 # css
-client/static/components/css/core.css
+client/static/components/css/
 
 # other
 node_modules
