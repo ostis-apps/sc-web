@@ -40,3 +40,12 @@
 label.switch {
     margin-right: 6px;
 }
+
+.treeview span.indent + span.indent {
+    display: none;
+}
+
+.treeview span.indent + span.indent + .glyphicon {
+    display: none;
+}
+
