@@ -676,7 +676,7 @@ SCg.Render.prototype = {
     },
 
     onMouseDown: function (window, render) {
-        var point = canEdit && this._correctPoint(d3.mouse(window));
+        var point = this._correctPoint(d3.mouse(window));
         if (render.scene.onMouseDown(point[0], point[1]))
             return;
 
