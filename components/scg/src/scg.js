@@ -93,6 +93,7 @@ SCg.Editor.prototype = {
     initUI: function () {
         var self = this;
         var container = '#' + this.containerId;
+        var canEdit = SCWeb.ui.UserPanel.is_authenticated;
         $(container).prepend('<div id="tools-' + this.containerId + '"></div>');
         var tools_container = '#tools-' + this.containerId;
         $(tools_container).load('static/components/html/scg-tools-panel.html', function () {
@@ -100,6 +101,16 @@ SCg.Editor.prototype = {
                 url: "static/components/html/scg-types-panel-nodes.html",
                 dataType: 'html',
                 success: function (response) {
+                        if (!canEdit) {
+                        self.hideTool(self.toolEdge());
+                        self.hideTool(self.toolBus());
+                        self.hideTool(self.toolContour());
+                        self.hideTool(self.toolCreateDraft());
+                        self.hideTool(self.toolUndo());
+                        self.hideTool(self.toolRedo());
+                        self.hideTool(self.toolClear());
+                        $('.auth-only-view').hide();
+                    }
                     self.node_types_panel_content = response;
                 },
                 error: function () {
@@ -122,17 +133,6 @@ SCg.Editor.prototype = {
                     });
                 }
             });
-            if (!self.canEdit) {
-                self.hideTool(self.toolEdge());
-                self.hideTool(self.toolBus());
-                self.hideTool(self.toolContour());
-                self.hideTool(self.toolOpen());
-                self.hideTool(self.toolSave());
-                //self.hideTool(self.toolIntegrate());
-                self.hideTool(self.toolCreateDraft());
-                self.hideTool(self.toolUndo());
-                self.hideTool(self.toolRedo());
-            }
             if (self.resolveControls)
                 self.resolveControls(tools_container);
         });
