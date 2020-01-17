@@ -680,7 +680,7 @@ SCg.Render.prototype = {
         if (render.scene.onMouseDown(point[0], point[1]))
             return;
 
-        //this.translate_started = true;
+        this.translate_started = true;
     },
 
     onMouseUp: function (window, render) {

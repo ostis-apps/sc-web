@@ -31,12 +31,6 @@
     flex-direction: column;
 }
 
-#expert_mode_container {
-    display: flex;
-    font-family: "Liberation Sans";
-    color: rgb(119, 119, 119);
-}
-
 label.switch {
     margin-right: 6px;
 }

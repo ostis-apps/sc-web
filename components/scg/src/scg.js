@@ -101,7 +101,7 @@ SCg.Editor.prototype = {
                 url: "static/components/html/scg-types-panel-nodes.html",
                 dataType: 'html',
                 success: function (response) {
-                        if (!canEdit) {
+                    if (!canEdit) {
                         self.hideTool(self.toolEdge());
                         self.hideTool(self.toolBus());
                         self.hideTool(self.toolContour());
