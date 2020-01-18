@@ -33,7 +33,7 @@ SCg.Render.prototype = {
                 self.onMouseUp(this, self);
             })
             .on('dblclick', function () {
-                self.onMouseDoubleClick(this, self);
+                if (SCWeb.ui.UserPanel.is_authenticated) self.onMouseDoubleClick(this, self);
             });
 
         this.scale = 1;

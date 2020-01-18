@@ -21,3 +21,24 @@
     display: inline-block;
     background-image: url(/static/components/images/menu-atom.png);
 }
+
+#window-header-tools {
+    position: absolute;
+    z-index: 2;
+    top: 20px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+label.switch {
+    margin-right: 6px;
+}
+
+.treeview span.indent + span.indent {
+    display: none;
+}
+
+.treeview span.indent + span.indent + .glyphicon {
+    display: none;
+}

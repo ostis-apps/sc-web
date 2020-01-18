@@ -33,7 +33,7 @@ class GoogleOAuth2LoginHandler(base.BaseHandler,
             u.key = key
             database.update_user(u)
         else:
-            role = 0
+            role = database.RIGHTS_EDITOR
             supers = tornado.options.options.super_emails
             if supers and (email in supers):
                 r = database.get_role_by_name('super')
