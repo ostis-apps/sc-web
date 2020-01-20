@@ -2,7 +2,7 @@ html {
     height: 100%;
     overflow: hidden;
 }
-		
+
 body {
     height: 100% !important;
     display: flex;
@@ -55,7 +55,7 @@ div#footer {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #CCC url("/static/components/images/loading-cog.gif") no-repeat center center; /* ../../static/components/images/loading-cog.gif */
+    background: #CCC url("/static/components/images/loading-cog.gif") no-repeat center center;
     opacity: 0.5;
     z-index: 1000;
 }
@@ -391,13 +391,13 @@ treeview .indent + .indent {
 /* --- menu --- */
 .menu-cmd-noatom:before {
     position: absolute;
-    content: url("http://test.ostis.net/static/components/images/menu-noatom.png");
+    content: url("../static/components/images/menu-noatom.png");
     left: 0px;
 }
 
 .dropdown-menu .menu-cmd-noatom:before {
     position: absolute;
-    content: url("http://test.ostis.net/static/components/images/menu-noatom.png");
+    content: url("../static/components/images/menu-noatom.png");
     left: 5px;
 }
 
