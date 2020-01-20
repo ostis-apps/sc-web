@@ -55,7 +55,7 @@ div#footer {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #CCC url("../static/components/images/loading-cog.gif") no-repeat center center;
+    background: #CCC url("/static/components/images/loading-cog.gif") no-repeat center center; /* ../../static/components/images/loading-cog.gif */
     opacity: 0.5;
     z-index: 1000;
 }
@@ -240,7 +240,7 @@ treeview .indent + .indent {
     max-height: 6px;
     max-width: 18px;
     display: inline-block;
-    background: #fff url("../static/components/images/resolve-idtf-anim.gif") no-repeat center center;
+    background: #fff url("../images/resolve-idtf-anim.gif") no-repeat center center;
 }
 
 /* --- window --- */
@@ -391,13 +391,13 @@ treeview .indent + .indent {
 /* --- menu --- */
 .menu-cmd-noatom:before {
     position: absolute;
-    content: url("../static/components/images/menu-noatom.png");
+    content: url("http://test.ostis.net/static/components/images/menu-noatom.png");
     left: 0px;
 }
 
 .dropdown-menu .menu-cmd-noatom:before {
     position: absolute;
-    content: url("../static/components/images/menu-noatom.png");
+    content: url("http://test.ostis.net/static/components/images/menu-noatom.png");
     left: 5px;
 }
 
@@ -451,7 +451,7 @@ treeview .indent + .indent {
     padding: 5px;
     margin: 2px;
     display: inline-block;
-    background: url("../static/components/images/content_corner.png") 0 0 no-repeat #fafafa;
+    background: url("../images/content_corner.png") 0 0 no-repeat #fafafa;
 }
 
 .sc-content-wrap {
@@ -522,18 +522,18 @@ div[class="tooltip-inner"] {
 }
 
 .gplus-login-button {
-    background-image: url("../static/components/images/gplus/White-signin_Small_base_32dp.png");
+    background-image: url("../images/gplus/White-signin_Small_base_32dp.png");
     width: 42px;
     height: 42px;
     margin-top: 4px;
 }
 
 .gplus-login-button:hover {
-    background-image: url("../static/components/images/gplus/White-signin_Small_hover_32dp.png");
+    background-image: url("../images/gplus/White-signin_Small_base_32dp.png");
 }
 
 .gplus-login-button:active {
-    background-image: url("../static/components/images/gplus/White-signin_Small_press_32dp.png");
+    background-image: url("../images/gplus/White-signin_Small_base_32dp.png");
 }
 
 /* --- expert mode checkbox --- */
