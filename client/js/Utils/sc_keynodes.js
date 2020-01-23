@@ -25,6 +25,7 @@ ScKeynodes.prototype.init = function() {
         this.resolveKeynode('ui_main_menu'),
         this.resolveKeynode('ui_user_command_class_atom'),
         this.resolveKeynode('ui_user_command_class_noatom'),
+        this.resolveKeynode('ui_no_argument_command_class'),
         this.resolveKeynode('ui_external_languages'),
         this.resolveKeynode('ui_rrel_command_arguments'),
         this.resolveKeynode('ui_rrel_command'),

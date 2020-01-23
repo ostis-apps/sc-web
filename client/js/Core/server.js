@@ -262,49 +262,59 @@ SCWeb.core.Server = {
 
     checkCommandArgument: function(cmd_addr, arguments_length) {
         return new Promise((resolve, reject) => {
-            window.sctpClient.iterate_constr(
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   parseInt(cmd_addr),
+            if (arguments_length == 0) {
+                window.sctpClient.iterate_elements(SctpIteratorType.SCTP_ITERATOR_3F_A_F,
+                    [window.scKeynodes.ui_no_argument_command_class, sc_type_arc_pos_const_perm, cmd_addr]
+                ).done(function (results) {
+                    resolve();
+                }).fail(function () {
+                    reject("wrong arguments");
+                });
+            } else {
+                window.sctpClient.iterate_constr(
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                        [parseInt(cmd_addr),
                         sc_type_arc_common | sc_type_const,
                         sc_type_node | sc_type_const | sc_type_node_struct,
-                        sc_type_arc_pos_const_perm,
+                            sc_type_arc_pos_const_perm,
                         window.scKeynodes.ui_nrel_command_template
-                    ],
-                    {"contour": 2}),
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   window.scKeynodes.question,
+                        ],
+                        { "contour": 2 }),
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                        [window.scKeynodes.question,
                         sc_type_arc_access | sc_type_var | sc_type_arc_pos | sc_type_arc_perm,
                         sc_type_node | sc_type_var,
-                        sc_type_arc_pos_const_perm,
-                        "contour"
-                    ],
-                    {"instance": 2}),
-                SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
-                    [   "instance",
-                        sc_type_var,
-                        sc_type_node | sc_type_const,
-                        sc_type_arc_pos_const_perm,
-                        "contour"
-                    ],
-                    {"arg": 2})
-            ).done(function (results) {
-                let argsPromise = results.results.map((arg, index) => {
-                    let addr = results.get(index, "arg");
-                    return window.scHelper.getSystemIdentifierPromise(addr);
-                });
-                Promise.all(argsPromise).then(values => {
-                    let arguments = values.filter((element) => {
-                        return element.search(/^ui_arg_\d+$/i) == 0;
+                            sc_type_arc_pos_const_perm,
+                            "contour"
+                        ],
+                        { "instance": 2 }),
+                    SctpConstrIter(SctpIteratorType.SCTP_ITERATOR_5F_A_A_A_F,
+                        ["instance",
+                            sc_type_var,
+                            sc_type_node | sc_type_const,
+                            sc_type_arc_pos_const_perm,
+                            "contour"
+                        ],
+                        { "arg": 2 })
+                ).done(function (results) {
+                    let argsPromise = results.results.map((arg, index) => {
+                        let addr = results.get(index, "arg");
+                        return window.scHelper.getSystemIdentifierPromise(addr);
                     });
-                    if (arguments.length == arguments_length) {
-                        resolve();
-                    } else {
-                        reject("wrong arguments");
-                    }
+                    Promise.all(argsPromise).then(values => {
+                        let arguments = values.filter((element) => {
+                            return element.search(/^ui_arg_\d+$/i) == 0;
+                        });
+                        if (arguments.length == arguments_length) {
+                            resolve();
+                        } else {
+                            reject("wrong arguments");
+                        }
+                    });
+                }).fail(function () {
+                    reject("fail in search");
                 });
-            }).fail(function () {
-                reject("fail in search");
-            });
+            }
         });
     },
 
